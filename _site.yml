@@ -5,7 +5,7 @@ output:
   html_document:
     theme: darkly
 navbar:  
-  title: "Research" 
+  title: Research 
   left: # alignment of the links on the navbar
     - text: "Global\nBody Size" # text to appear on the Navbar at the top of the page
       href: research.html # link to the new page
