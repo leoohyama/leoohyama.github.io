@@ -4,12 +4,8 @@ output_dir: docs
 output:
   html_document:
     theme: darkly
-navbar:
-  title: Intro_to_R
-  left:
-  - text: Home
-    href: index.html
-    icon: fa-home
-  - text: Tutorial_1
-    href: IUSSI.html
-    icon: fa-home
+navbar:  
+  title: "Research" 
+  left: # alignment of the links on the navbar
+    - text: "Global\nBody Size" # text to appear on the Navbar at the top of the page
+      href: research.html # link to the new page
