@@ -10,7 +10,7 @@ navbar:
   left:
   - text: Home
     href: index.html
-  - text: HELLO
+  - text: CV
     href: CV.html
   - text: Research
     menu:
