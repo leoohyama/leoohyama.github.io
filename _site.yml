@@ -1,15 +1,15 @@
-name: Biological Research by Ohyama
-author: Leo Ohyama
+name: Intro_to_R
+author: Biplabendu Das
 output_dir: docs
 output:
-  html_document: 
+  html_document:
     theme: darkly
 navbar:
-  title: About me
+  title: Intro_to_R
   left:
   - text: Home
     href: index.html
     icon: fa-home
   - text: Tutorial_1
-    href: index.html
+    href: IUSSI.html
     icon: fa-home
