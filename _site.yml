@@ -5,6 +5,11 @@ output:
   html_document:
     theme: darkly
 navbar:  
+  title: Home 
+  left: # alignment of the links on the navbar
+    - text: "Global\nBody Size" # text to appear on the Navbar at the top of the page
+      href: index.html # link to the new page
+navbar:  
   title: Research 
   left: # alignment of the links on the navbar
     - text: "Global\nBody Size" # text to appear on the Navbar at the top of the page
