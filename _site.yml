@@ -4,15 +4,22 @@ output_dir: docs
 output:
   html_document:
     theme: darkly
-    toc: true
+    
 
-navbar:  
-  title: Home 
-  left: # alignment of the links on the navbar
-    - text: "Macroecology" # text to appear on the Navbar at the top of the page
-      href: Macroecology.html # link to the new page
-    - text: "Island Biogeography" # text to appear on the Navbar at the top of the page
-      href: species_area.html # link to the new page
-    - text: "Community Ecology" # text to appear on the Navbar at the top of the page
-      href: thief_ants.html # link to the new page
-      
+navbar:
+  title: My Website
+  left:
+  - text: Home
+    href: index.html
+  - text: CV
+    href: about.html
+  - text: Research
+    menu:
+    - text: Macroecology
+      href: readings-module1.html
+    - text: Island Biogeography
+      href: readings-module2.html
+    - text: Community Ecology
+      href: readings-module3.html
+    - text: Non-ants
+      href: readings-module4.html      

@@ -1,13 +1,14 @@
 ---
 pagetitle: "HOME"
 ---
+
+
+## Welcome!
+
+Hi and welcome to my website (still a work in progress). My name is Leo Ohyama, and I'm currently a PhD student at the University of Florida. My interest lie in macroecology, island biogeography, and scaling effects on biodiversity. Most of my work focuses ants.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-
-## Welcome!
-
-
-Hi and welcome to my website (still a work in progress). My name is Leo Ohyama, and I'm currently a PhD student at the University of Florida. My interest lie in macroecology, island biogeography, and scaling effects on biodiversity. Most of my work focuses ants.
