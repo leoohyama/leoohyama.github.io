@@ -4,6 +4,7 @@ output_dir: docs
 output:
   html_document:
     theme: darkly
+    toc: true
 navbar:  
   title: Home 
   left: # alignment of the links on the navbar
