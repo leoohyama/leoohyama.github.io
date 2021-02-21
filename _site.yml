@@ -9,9 +9,10 @@ output:
 navbar:  
   title: Home 
   left: # alignment of the links on the navbar
-    - text: "Global\nBody Size" # text to appear on the Navbar at the top of the page
-      href: research.html # link to the new page
-  left:
-    - text: "Global\nBody Size2" # text to appear on the Navbar at the top of the page
-      href: research.html # link to the new page
+    - text: "Macroecology" # text to appear on the Navbar at the top of the page
+      href: Macroecology.html # link to the new page
+    - text: "Island Biogeography" # text to appear on the Navbar at the top of the page
+      href: species_area.html # link to the new page
+    - text: "Community Ecology" # text to appear on the Navbar at the top of the page
+      href: thief_ants.html # link to the new page
       
