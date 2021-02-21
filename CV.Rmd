@@ -31,7 +31,7 @@ knitr::opts_chunk$set(echo = TRUE)
 **1** **Ohyama, L.**, J.R. King., D.G. Jenkins. 2018. Diversity and distribution of Solenopsis (Hymenoptera: Formicidae) thief ants belowground. Myrmecological News 27:47-57.
 [\*Covered by Myrmecological News](https://blog.myrmecologicalnews.org/2018/07/12/diversity-and-distribution-of-solenopsis-thief-ants-belowground/)
 
-# Funding
+# Funding and Awards
 2020
 Entomological Society of America National Meeting, 10-minute paper competition in climate change & biogeography, 1st place ($75)
 
@@ -63,5 +63,24 @@ Project title: Floridian thief ant (Hymenoptera: Formicidae: Solenopsis) species
 
 2012-16	Boise State University Gem Scholarship ($36,000)
 
+# Presentations
+
+Hornfledt, J.A., **Ohyama, L**, A. Lucky. (2020, November) The little fire ant: Using behavioral experimentation to understand invasive ant social structure. Talk presented at the Entomological Society of America Annual Meeting, Virtual
+
+Lucky, A., R. Atchison., Y.M. Zhang., **Ohyama, L**, J. Williams., J. Pinkey., K. Clancy., A. Nielsen., C.A. Lippi. (2020, November) Myrmecology, Gender, and Geography: Changing demographics of a research community over thirty years. Talk presented at the Entomological Society of America Annual Meeting, Virtual
+
+**Ohyama, L**., R.D. Holt, T.J., Matthews., A. Lucky. (2020, November) The species-area relationship in ant ecology. Talk presented at the Entomological Society of America Annual Meeting, Virtual 
+
+Lucky, A., R. Atchison., Y.M. Zhang., **Ohyama, L**, J. Williams., J. Pinkey., K. Clancy., A. Nielsen., C.A. Lippi. (2020, March) Myrmecology, Gender, and Geography: Changing demographics of a research community over thirty years. Talk given at the Social Insects in the East Region Conference, Brooklyn, New York **Cancelled due to coronavirus pandemic
+
+Bogota, J.D., **Ohyama, L**, A. Acosta-Santos, E. Agudelo-Cordoba. (2019, July) Using remote sensing to evaluate surrounding land use and cover on freshwater fish assemblage structure and water quality from the Upper Amazon Basin, Columbia. Poster presented at the XV Columbian Congress of Ichthyology and VI Meeting of Ichthyologists Suramericanos, Medellin, Colombia
+
+**Ohyama, L**, J.R. King, B.M., Gochnour. (2018, March) Changes in an invaded Florida ant community over 25 years. Poster presented at the University of Central Florida Graduate Research Fair, Orlando, Florida
+
+**Ohyama, L** (2018, December) Invited speaker, On the ecology of Solenopsis thief ants and the integration of GIS technology in assessing diversity, Talk given at the University of Florida Department of Entomology and Nematology, Gainesville, Florida
+
+**Ohyama, L**, J.R. King, D.G. Jenkins (2018, August) Diversity and distribution of Solenopsis (Hymenoptera: Formicidae) thief ants belowground. Talk given at the Ecological Society of America national meeting, New Orleans, Louisiana
+
+**Ohyama, L**, J.R. King. (2018, March) Diversity and distribution of Solenopsis (Hymenoptera: Formicidae) thief ants belowground. Poster presented at the Entomological Society of America Southeastern Branch Meeting, Orlando, Florida
 
 
