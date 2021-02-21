@@ -1,14 +1,15 @@
-name: "Leo Ohyama"
-navbar:
-  title: "BRO (Biological Research by Ohyama) LAB"
-  left:
-    - text: "Home"
-      href: index.html
-  right: 
-    - icon: fa-envelope fa-lg
-      href: mailto:<leoohyama12@gmail.com>
-    - icon: fa-github fa-lg
-      href: https://leoohyama.github.io/
+name: Biological Research by Ohyama
+author: Leo Ohyama
+output_dir: docs
 output:
   html_document:
     theme: darkly
+navbar:
+  title: About me
+  left:
+  - text: Home
+    href: index.html
+    icon: fa-home
+  - text: Tutorial_1
+    href: IUSSI.html
+    icon: fa-home
