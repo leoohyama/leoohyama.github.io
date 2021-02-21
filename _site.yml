@@ -7,7 +7,7 @@ output:
     
 
 navbar:
-  title: My Website
+  title: Ohyama
   left:
   - text: Home
     href: index.html
@@ -22,4 +22,9 @@ navbar:
     - text: Community Ecology
       href: readings-module3.html
     - text: Non-ants
-      href: readings-module4.html      
+      href: readings-module4.html 
+  - text: R stuff
+    menu:
+    - text: Data Exploration
+      href: NYCflights.html
+  
