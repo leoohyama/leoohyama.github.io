@@ -2,7 +2,7 @@ name: Biological Research by Ohyama
 author: Leo Ohyama
 output_dir: docs
 output:
-  html_document:
+  html_document: index.html
     theme: darkly
 navbar:
   title: About me
@@ -11,5 +11,5 @@ navbar:
     href: index.html
     icon: fa-home
   - text: Tutorial_1
-    href: IUSSI.html
+    href: index.html
     icon: fa-home
