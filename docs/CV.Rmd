@@ -1,0 +1,25 @@
+---
+author: "Leo Ohyama"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Education
+
+**2019-Current** University of Florida, PhD
+
+**2016-2019** University of Central Florida, MS Biology
+
+**2012-2016** Boise State University, BS Biology
+
+# Publications
+
+5. \*Hornfeldt, J., **L. Ohyama**, A. Lucky. 2020. Using Behavioral Experimentation to Understand the Social Structure of the Little Fire Ant (Wasmannia auropunctata) in Florida. UF Journal of Undergraduate Research 22.
+*Undergraduate student mentee
+
+4. Lucky, A., R. Atchison., L. Ohyama., Y.M. Zhang., J. Williams., J. Pinkey., K. Clancy., A. Nielsen., C.A. Lippi. 2020. Myrmecology, Gender, and Geography: Changing demographics of a research community over thirty years. Myrmecological News 39:187-199.
+[\*Awarded best paper by Myrmecological News for 2020](https://blog.myrmecologicalnews.org/2021/02/04/best-paper-award-2020/)
+
