@@ -9,3 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+#Welcome!
+
+My name is Leo Ohyama, and I'm currently a PhD student at the University of Florida. 
