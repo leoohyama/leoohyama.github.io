@@ -31,4 +31,37 @@ knitr::opts_chunk$set(echo = TRUE)
 **1** **Ohyama, L.**, J.R. King., D.G. Jenkins. 2018. Diversity and distribution of Solenopsis (Hymenoptera: Formicidae) thief ants belowground. Myrmecological News 27:47-57.
 [\*Covered by Myrmecological News](https://blog.myrmecologicalnews.org/2018/07/12/diversity-and-distribution-of-solenopsis-thief-ants-belowground/)
 
-# Presentations
+# Funding
+2020
+Entomological Society of America National Meeting, 10-minute paper competition in climate change & biogeography, 1st place ($75)
+
+2020-21 
+University of Florida Biodiversity Institute Fellowship ($22,000/9 months)
+
+2019-22	
+University of Florida Graduate School Funding Award ($31,000/year for 4 years)
+
+2019	University of Central Florida Student Government Association Special Scholarship ($500)
+
+2018	University of Central Florida Student Government Association Research Travel Award ($250)
+
+2018	University of Central Florida Student Government Association International Graduate Scholarship ($500)
+
+2018	University of Central Florida Research Foundation Grant
+PI: Joshua R. King, Co-PI: Leo Ohyama -- $1,000 dollars
+Project title: Floridian thief ant (Hymenoptera: Formicidae: Solenopsis) species delimitation in a phylogenetic framework
+
+2018	Entomological Society of America Southeastern Branch Meeting Masters Student Poster Competition 2nd place ($100)
+
+2017	Arnold Haverlee Exploration Endowed Award ($1000)
+
+2017	University of Central Florida Student Government Association Special Scholarship ($500)
+
+2017	University of Central Florida Biology Department Pre-Proposal Award ($100)
+
+2016	Bishop Barnwell Student Leadership award ($400)
+
+2012-16	Boise State University Gem Scholarship ($36,000)
+
+
+
