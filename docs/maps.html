@@ -296,7 +296,7 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="readings-module1.html">Macroecology</a>
+      <a href="macroecology.html">Macroecology</a>
     </li>
     <li>
       <a href="readings-module2.html">Island Biogeography</a>
@@ -344,7 +344,8 @@ $(document).ready(function () {
 
 <div id="mapping-in-r" class="section level1">
 <h1>Mapping in R</h1>
-<p>Making effective maps is extremely important to convey data that is spatially distributed. For me, I started making maps in ArcMap but I quickly realized that license access was limited with the program. Therefore, most of my map-making activities has delved into R or QGIS (a open souce alternative of ArcMap). There are pros and cons of map making in R. Pro: You are given better control and a wider variety of tools to make beautiful maps. Cons: R can be very slow when it comes to plotting depending on if you parallel process or not. R may also be slower when it comes to basic operations such as intersecting geospatial data etc. So if you want speed, I suggest using QGIS and then plotting in R.</p>
+<p>Making effective maps is extremely important to convey data that is spatially distributed. For me, I started making maps in ArcMap but I quickly realized that access to the software license was limited Therefore, most of my map-making activities has delved into R or QGIS (a open souce alternative of ArcMap). There are pros and cons of map making in R.</p>
+<p>Pro: You are given better control and a wider variety of tools to make beautiful maps. Con: R can be very slow when it comes to plotting depending on if you parallel process or not. R may also be slower when it comes to basic operations such as intersecting geospatial data etc. So if you want speed, I suggest using QGIS and then plotting in R.</p>
 <p>There are different types of geospatial data we can map in R (rasters, polygons, points, etc.), this tutorial will mainly go over polygons shapefiles, more specifically multipolygon shapefiles.</p>
 </div>
 <div id="loading-in-your-data" class="section level1">
@@ -394,7 +395,18 @@ df_shp</code></pre>
 ## 10 287.1639 17601.9375 MULTIPOLYGON (((-154.5998 7...</code></pre>
 <p>You’ll notice that the object that we read in is called a simple feature, this is because we are using the ‘sf’ package to read in the data. Geospatial data is better manipulated as a simple feature class because it provdes more flexibility on what can be done with the data.</p>
 <p>The data that was read in is a shapefile of the world divided into hexbins. Each row represent a hexbin polygon and there is information for different attributes for each of these hexbins:</p>
-<p><em>cell: hexbin cell identifier </em>SR: species richness within a hexbin <em>geo_avg: average size metric of all species inside that hexbin </em>MAT: Mean annual temperature <em>CM: Coldest month temperature </em>MAP: Mean annual precipitation <em>WET: Temperature of wettest month </em>ATR: Annual temperature range <em>NPP: Net primary productivity </em>TREE: Tree density</p>
+<ul>
+<li>cell: hexbin cell identifier</li>
+<li>SR: species richness within a hexbin</li>
+<li>geo_avg: average size metric of all species inside that hexbin</li>
+<li>MAT: Mean annual temperature</li>
+<li>CM: Coldest month temperature</li>
+<li>MAP: Mean annual precipitation</li>
+<li>WET: Temperature of wettest month</li>
+<li>ATR: Annual temperature range</li>
+<li>NPP: Net primary productivity</li>
+<li>TREE: Tree density</li>
+</ul>
 <p><strong>Note:</strong> All data was averaged per hexbin</p>
 </div>
 <div id="basic-plot-of-hexbin" class="section level1">
@@ -403,7 +415,7 @@ df_shp</code></pre>
 <pre class="r"><code>ggplot() +
   geom_sf(data = df_shp)</code></pre>
 <p><img src="maps_files/figure-html/unnamed-chunk-3-1.png" width="960" style="display: block; margin: auto;" /></p>
-<p>Awesome, looks beautiful. We now have a map of the world in hexbin format. But let’s show more information. Let’s plot the world’s mean annual precipiation and let’s add some color.</p>
+<p>Awesome, looks beautiful. We now have a map of the world in hexbin format. But let’s show more information. Let’s plot the world’s mean annual temperature range and let’s add some color.</p>
 <pre class="r"><code>ggplot() +
   geom_sf(data = df_shp, aes(fill = ATR, color = ATR)) +
   scale_fill_distiller(palette = &quot;Spectral&quot;) +
@@ -435,8 +447,7 @@ df_shp</code></pre>
 ##             ANGLEUNIT[&quot;degree&quot;,0.0174532925199433]],
 ##     ID[&quot;EPSG&quot;,4326]]</code></pre>
 <pre class="r"><code>new_proj &lt;- &quot;+proj=moll +datum=WGS84 +no_defs +over&quot; #assign mollweide projection 
-#use the &#39;lwgeom&#39; package to reproject
-df_shp2 &lt;- st_transform(df_shp, crs = new_proj)
+df_shp2 &lt;- st_transform(df_shp, crs = new_proj) # reproject 
 st_crs(df_shp2) #notice how we changed the projected CRS?</code></pre>
 <pre><code>## Coordinate Reference System:
 ##   User input: +proj=moll +datum=WGS84 +no_defs +over 

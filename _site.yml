@@ -15,7 +15,7 @@ navbar:
   - text: Research
     menu:
     - text: Macroecology
-      href: readings-module1.html
+      href: macroecology.html
     - text: Island Biogeography
       href: readings-module2.html
     - text: Community Ecology

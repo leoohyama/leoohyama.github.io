@@ -6,7 +6,10 @@ output: html_document
 
 # Mapping in R
 
-Making effective maps is extremely important to convey data that is spatially distributed. For me, I started making maps in ArcMap but I quickly realized that license access was limited with the program. Therefore, most of my map-making activities has delved into R or QGIS (a open souce alternative of ArcMap). There are pros and cons of map making in R. Pro: You are given better control and a wider variety of tools to make beautiful maps. Cons: R can be very slow when it comes to plotting depending on if you parallel process or not. R may also be slower when it comes to basic operations such as intersecting geospatial data etc. So if you want speed, I suggest using QGIS and then plotting in R.
+Making effective maps is extremely important to convey data that is spatially distributed. For me, I started making maps in ArcMap but I quickly realized that access to the software license was limited Therefore, most of my map-making activities has delved into R or QGIS (a open souce alternative of ArcMap). There are pros and cons of map making in R. 
+
+Pro: You are given better control and a wider variety of tools to make beautiful maps. 
+Con: R can be very slow when it comes to plotting depending on if you parallel process or not. R may also be slower when it comes to basic operations such as intersecting geospatial data etc. So if you want speed, I suggest using QGIS and then plotting in R.
 
 There are different types of geospatial data we can map in R (rasters, polygons, points, etc.), this tutorial will mainly go over polygons shapefiles, more specifically multipolygon shapefiles.
 
@@ -39,16 +42,16 @@ You'll notice that the object that we read in is called a simple feature, this i
 
 The data that was read in is a shapefile of the world divided into hexbins. Each row represent a hexbin polygon and there is information for different attributes for each of these hexbins:
 
-*cell: hexbin cell identifier
-*SR: species richness within a hexbin
-*geo_avg: average size metric of all species inside that hexbin
-*MAT: Mean annual temperature
-*CM: Coldest month temperature
-*MAP: Mean annual precipitation
-*WET: Temperature of wettest month
-*ATR: Annual temperature range 
-*NPP: Net primary productivity
-*TREE: Tree density
+* cell: hexbin cell identifier
+* SR: species richness within a hexbin
+* geo_avg: average size metric of all species inside that hexbin
+* MAT: Mean annual temperature
+* CM: Coldest month temperature
+* MAP: Mean annual precipitation
+* WET: Temperature of wettest month
+* ATR: Annual temperature range 
+* NPP: Net primary productivity
+* TREE: Tree density
 
 **Note:** All data was averaged per hexbin
 
@@ -60,7 +63,7 @@ ggplot() +
   geom_sf(data = df_shp)
 ```
 
-Awesome, looks beautiful. We now have a map of the world in hexbin format. But let's show more information. Let's plot the world's mean annual precipiation and let's add some color.
+Awesome, looks beautiful. We now have a map of the world in hexbin format. But let's show more information. Let's plot the world's mean annual temperature range and let's add some color.
 ```{r, echo=TRUE, fig.align = "center", fig.width = 10}
 ggplot() +
   geom_sf(data = df_shp, aes(fill = ATR, color = ATR)) +
@@ -78,8 +81,7 @@ First, we need to reproject the shapefile. We wil reproject using the mollweide 
 ```{r}
 st_crs(df_shp) #this tells you what coordinate reference system you are in
 new_proj <- "+proj=moll +datum=WGS84 +no_defs +over" #assign mollweide projection 
-#use the 'lwgeom' package to reproject
-df_shp2 <- st_transform(df_shp, crs = new_proj)
+df_shp2 <- st_transform(df_shp, crs = new_proj) # reproject 
 st_crs(df_shp2) #notice how we changed the projected CRS?
 ```
 
