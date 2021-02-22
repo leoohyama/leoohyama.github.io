@@ -296,7 +296,7 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="readings-module1.html">Macroecology</a>
+      <a href="macroecology.html">Macroecology</a>
     </li>
     <li>
       <a href="readings-module2.html">Island Biogeography</a>
@@ -318,6 +318,9 @@ $(document).ready(function () {
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="NYCflights.html">Data Exploration</a>
+    </li>
+    <li>
+      <a href="maps.html">Global Maps</a>
     </li>
   </ul>
 </li>
@@ -347,6 +350,13 @@ library(corrplot) #new package
 library(EnvStats) #new package
 library(nycflights13) #new package
 library(GGally) #new package</code></pre>
+<p>This script comes from my lecture on data exploration in R. I try and use open-source data whenever possible. The highlights of this script is to:</p>
+<ol style="list-style-type: decimal">
+<li><p>Provide the user with an understanding of how to assess their dtata structure (e.g. how many rows, how many columns)</p></li>
+<li><p>Compare central tendency measures across different types of data distribution</p></li>
+<li><p>Utilize different packages to quickly assess correlaitons between numeric or continuous variables within a data set</p></li>
+<li><p>Utilize the tidyverse, to rapidly explore data and patterns with a relatively large dataset</p></li>
+</ol>
 <div id="tomato-yields-assessing-and-quickly-examining-data-structure" class="section level1">
 <h1>Tomato yields: Assessing and quickly examining data structure</h1>
 <p>Here we use a dataset on tomota yields from different environments and different genotypes from the package ‘agridat’ . Setup the yield dataset:</p>
@@ -464,20 +474,28 @@ mean_yield</code></pre>
 <pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="NYCflights_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p>This time there is a spread. Median is less than the mean. The median is actually more closer to the mode of the yield (taller bars) than the mean.</p>
-<p>#Correlations We can first use the GGally package. The ggpairs() code provides us with scatter plots that plot variables against one another in a pairwise fashion. We also see the distribution of the data and the correlation coefficients between a pair of variables</p>
+</div>
+<div id="correlations" class="section level1">
+<h1>Correlations</h1>
+<p>We can first use the GGally package. The ggpairs() code provides us with scatter plots that plot variables against one another in a pairwise fashion. We also see the distribution of the data and the correlation coefficients between a pair of variables</p>
 <pre class="r"><code>ggpairs(tomato %&gt;% dplyr::select(pH, P, K, weight, yield)) #select only 5 variables #interest</code></pre>
 <p><img src="NYCflights_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
-<p>let’s use the corrplot package to identify which variables are correlated with one another. First we need to make a correlation matrix of the data. Here we calculate a correlation matrix using a pearson’s correlation coefficicent method. Keep in mind that the pearson’s method often assumes nromality between variables which we did not check. Other methods such as spearman’s correlation coefficent can be used for non-normal data.</p>
+<p>Let’s use the corrplot package to identify which variables are correlated with one another. First we need to make a correlation matrix of the data. Here we calculate a correlation matrix using a pearson’s correlation coefficicent method. Keep in mind that the pearson’s method often assumes nromality between variables which we did not check. Other methods such as spearman’s correlation coefficent can be used for non-normal data.</p>
 <pre class="r"><code>cor_tomatos&lt;-cor(tomato %&gt;% select(-env,-gen) %&gt;% na.omit(), method = c(&quot;pearson&quot;))</code></pre>
 <pre><code>## Warning in cor(tomato %&gt;% select(-env, -gen) %&gt;% na.omit(), method =
 ## c(&quot;pearson&quot;)): the standard deviation is zero</code></pre>
 <p>Let’s visualize this matrix better with the corrplot package. This line of code will generate a plot showing the relationships between all variables in pairwise manner using the correlation matrix we made previously. The colors represent the value of the correlation coefficent. Blues indicate positive correlation while reds refelct negative correlations. The size of the circles reflect the correlation coefficient (e.g, bigger circles represent larger correlation coefficeint values).</p>
 <pre class="r"><code>corrplot(cor_tomatos, method = &quot;circle&quot;, type = &quot;upper&quot;)</code></pre>
 <p><img src="NYCflights_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
-<p>#If you want both the circles and the correlation coefficients you can run this line:</p>
+</div>
+<div id="if-you-want-both-the-circles-and-the-correlation-coefficients-you-can-run-this-line" class="section level1">
+<h1>If you want both the circles and the correlation coefficients you can run this line:</h1>
 <pre class="r"><code>corrplot.mixed(cor_tomatos)</code></pre>
 <p><img src="NYCflights_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
-<p>#Data exploration approaches with the tidyverse Here we use a dataset named ‘flights’ from the nycflights12 package. This is data showing every flight to come out of three New York Airports in the year 2013 (domestic only). It comes with the main data named ‘flights’ but also comes with extra datasets (or metadata files) names ‘airlines’ and ‘airports’. ‘Airlines’ provides the airline name for each carrier code (e.g. UA is United Airlines) ’Airports provides an airport name for each destination code (MCO is Orlando)</p>
+</div>
+<div id="data-exploration-approaches-with-the-tidyverse" class="section level1">
+<h1>Data exploration approaches with the tidyverse</h1>
+<p>Here we use a dataset named ‘flights’ from the nycflights12 package. This is data showing every flight to come out of three New York Airports in the year 2013 (domestic only). It comes with the main data named ‘flights’ but also comes with extra datasets (or metadata files) names ‘airlines’ and ‘airports’. ‘Airlines’ provides the airline name for each carrier code (e.g. UA is United Airlines) ’Airports provides an airport name for each destination code (MCO is Orlando)</p>
 <p>Let’s load up the flights dataset:</p>
 <pre class="r"><code>data(&quot;flights&quot;)</code></pre>
 <p>We see that this dataset is rather large w/ 336,776 rows</p>
@@ -655,7 +673,15 @@ ggplot(data = delay_months) +
 ## 10 AA      ORD     328
 ## # … with 176 more rows</code></pre>
 <p>Looks like Delta (DL) flew 629 total flights to Atlanta (ATL). Atlanta must be a very popular spot! But why?! This is where data exploration becomes limited. We have no data to support why Atlanta is popular. However thankfully we know that Hartsfield Jackson (Atlanta’s main airport) is a primary hub for Delta Airlines. That’s why the airline tries to keep all their flights moving through ATL. This showcases how powerful data exploration is but how sometimes it can leads to wrong assumptions.</p>
-<p>#R challenge used for actual lab activity. Answers provided ###################################################################### #### R CHALLENGE Data Exploration DUE XYZ #’For this challenge we will use the flights dataset</p>
+</div>
+<div id="r-challenge-used-for-actual-lab-activity.-answers-provided" class="section level1">
+<h1>R challenge used for actual lab activity. Answers provided</h1>
+<div id="section" class="section level70">
+<p></p>
+</div>
+<div id="r-challenge-data-exploration-due-xyz" class="section level4">
+<h4>R CHALLENGE Data Exploration DUE XYZ</h4>
+<p>#’For this challenge we will use the flights dataset</p>
 <p>#‘Question 1: Two parts. First, which months had the most flights departing each of the three airports? #’ Second, show a line plot of all three airports and the number of flights departing them across #’ every month (Hint: x-axis would be months, y would be the number of flights).</p>
 <p>Q1&lt;-ny_flights %&gt;% group_by(month, origin) %&gt;% summarise(total = n()) %&gt;% arrange(desc(total)) %&gt;% ungroup()</p>
 <p>ggplot(Q1, aes(x = month, y = total, color = origin,group = origin)) + geom_point(aes(x = month, y = total, color = origin)) + geom_line(aes(x = month, y = total, color = origin)) + theme_bw()</p>
@@ -667,6 +693,7 @@ ggplot(data = delay_months) +
 <p>where_do_I_go&lt;-ny_flights %&gt;% filter(dest %in% c(“ATL”, “BOS”, “ORD”, “LAX”, “MCO”)) %&gt;% group_by(origin,dest, month) %&gt;% summarise(total = n())</p>
 <p>ggplot(where_do_I_go) + geom_point(aes(x = month, y = total, color = origin)) + geom_line(aes(x = month, y = total, color = origin)) + facet_wrap(~dest)</p>
 <p>#Optional: CHALLENGE CHALLENGE #’ Which carriers fly to which of the top ten destinations at what time of the day? #’ Play around with the full dataset ‘flights’! See how much faster or slower it might take to #’ run certain plots and operators! #’ Hint: you can use the “hours” variable as time of day flights %&gt;% filter(dest %in% top_ten$dest) %&gt;% group_by(dest, carrier, hour) %&gt;% summarise(total= n()) %&gt;% ggplot(., aes(x = hour, y = dest, fill = total)) + geom_tile() + facet_wrap(~carrier) + scale_fill_viridis_c()</p>
+</div>
 </div>
 
 
