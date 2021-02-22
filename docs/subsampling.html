@@ -356,7 +356,8 @@ $(document).ready(function () {
 library(sf)
 library(tidyverse)
 library(nlme)
-library(viridis)</code></pre>
+library(viridis)
+library(lwgeom)</code></pre>
 <p>This is how you read in your shapefile data:</p>
 <pre class="r"><code>df_shp &lt;- st_read(
   &quot;~/Desktop/hexbin_wenviron/hexbin_wenviron.shp&quot;)</code></pre>
@@ -412,12 +413,14 @@ df_shp</code></pre>
 <p><strong>Note:</strong> All data was averaged per hexbin</p>
 <p>In this case we consider a hexbin as a single assemblage as such the values per hexbin represent average values for each assemblage. We will also remove any assemblages with less than 5 species to set a biologically reasonable minimum species richness.</p>
 <p>A quick plot of this shows the distribution of body size across the world:</p>
-<pre class="r"><code>df_shp &lt;- df_shp %&gt;% filter(!SR&lt;5)
+<pre class="r"><code>df_shp_master&lt;-df_shp #make a master copy in case we need it
+df_shp &lt;- df_shp %&gt;% filter(!SR&lt;5)
+
 ggplot() +
   geom_sf(data = df_shp, aes(fill = geo_avg, color = geo_avg)) +
   scale_fill_viridis_c()+
   scale_color_viridis_c()+
-  labs(fill = &quot;Annual\nTemperature\nRange&quot;, color = &quot;Annual\nTemperature\nRange&quot;) +
+  labs(fill = &quot;Body Size&quot;, color = &quot;Body Size&quot;) +
   theme(panel.background = element_rect(fill = &quot;black&quot;, colour = NA))</code></pre>
 <p><img src="subsampling_files/figure-html/unnamed-chunk-3-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>Now let’s a build a model where we assess geo_avg (our variable for body size) as a function of ATR. We also need a model to account for spatial autocorrelation. We will use generalized least squares (GLS) regression as it permits analysis of data given the assumption that there is a high level or correlation between our residuals (a typical sign of spatial autocorrelation). Finally the model should also account for the species richness of each assemblage because more species may influence the average body size of an assemblage.To do this we need to grab coordinates for each assemblage, which we can do by getting the centroids of each hexbin:</p>
@@ -430,21 +433,21 @@ centroid&lt;-st_centroid(df_shp)</code></pre>
 ## latitude data</code></pre>
 <pre class="r"><code>df_shp2&lt;-cbind(df_shp,st_coordinates(centroid))
 model_df&lt;-df_shp2 %&gt;% st_drop_geometry() %&gt;%
-  dplyr::select(geo_avg, SR, ATR, X,Y) %&gt;% drop_na() #get rid of NAs here
-colnames(model_df)[4:5]&lt;-c(&quot;lon&quot;, &quot;lat&quot;) #rename X and Y as lat and lon
+  dplyr::select(cell,geo_avg, SR, ATR, X,Y) %&gt;% drop_na() #get rid of NAs here
+colnames(model_df)[5:6]&lt;-c(&quot;lon&quot;, &quot;lat&quot;) #rename X and Y as lat and lon
 head(model_df)</code></pre>
-<pre><code>##    geo_avg SR      ATR        lon      lat
-## 1 1.091213 56 26.58891   11.83942 58.94358
-## 2 1.688046  7 23.71292   19.20741 69.48915
-## 3 1.209047 50 29.55614   14.98825 64.43302
-## 4 1.212341 15 34.34307 -156.22050 60.92071
-## 5 1.096853 22 46.19601 -149.96528 67.06155
-## 6 1.128458 19 38.76278 -141.02016 61.56315</code></pre>
+<pre><code>##   cell  geo_avg SR      ATR        lon      lat
+## 1    1 1.091213 56 26.58891   11.83942 58.94358
+## 2    9 1.688046  7 23.71292   19.20741 69.48915
+## 3   10 1.209047 50 29.55614   14.98825 64.43302
+## 4   12 1.212341 15 34.34307 -156.22050 60.92071
+## 5   13 1.096853 22 46.19601 -149.96528 67.06155
+## 6   22 1.128458 19 38.76278 -141.02016 61.56315</code></pre>
 <p>Now we have our dataset for our GLS model. Now we need to modify the gls() function to accept a spatial autocorrelation structure that accounts for the curvature of the earth. We can do this using modified code from stackoverflow:</p>
 <p>Now that we have modified the code we can run a GLS model:</p>
 <pre class="r"><code>t_range1 &lt;- gls(log(geo_avg) ~ ATR, weights=varFixed(~1/SR),
                 correlation = corHaversine(form=~lon+lat, mimic=&quot;corSpher&quot;), data = model_df)
-summary(t_range1)</code></pre>
+summary(t_range1) #check model summary</code></pre>
 <pre><code>## Generalized least squares fit by REML
 ##   Model: log(geo_avg) ~ ATR 
 ##   Data: model_df 
@@ -475,6 +478,124 @@ summary(t_range1)</code></pre>
 ## 
 ## Residual standard error: 1.841149 
 ## Degrees of freedom: 313 total; 311 residual</code></pre>
+<pre class="r"><code>r2&lt;-cor(predict(t_range1),  log(model_df$geo_avg))^2 #caluclate R2
+r2#correlation coefficient</code></pre>
+<pre><code>## [1] 0.2225697</code></pre>
+<p>Ok great, our model is amazing. It’s giving us significant effects that increasing ATR increases average body size of an assemblage. So perhaps harsher climates yield larger body sizes? Our correlation coefficient also tells us that ATR predicts 22% of the variation in body size!</p>
+<p>Now let’s subsample. To do this we need data on every species in each hexbin. Thankfully I have this data so we just add it into the environment:</p>
+<pre class="r"><code>final_cell_list&lt;-readRDS(&quot;~/Desktop/final_cell_list.rds&quot;)
+head(final_cell_list)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+## # Groups:   cell [6]
+##   cell  valid_species        max_HW
+##   &lt;chr&gt; &lt;chr&gt;                 &lt;dbl&gt;
+## 1 502   Brachymyrmex degener  0.511
+## 2 110   Brachymyrmex degener  0.511
+## 3 131   Brachymyrmex degener  0.511
+## 4 422   Camponotus atriceps   3.88 
+## 5 413   Camponotus atriceps   3.88 
+## 6 423   Camponotus atriceps   3.88</code></pre>
+<p>We see that we have the species name, the size of the species, and the cell it belongs to.</p>
+<p>Now we filter out cells with less than 5 species because that was the minimum threshold for an assemblage (hexbin) to be included in our dataset for analysis.</p>
+<pre class="r"><code>#get cell numbers with less than 5 species
+remove_cell&lt;-df_shp_master %&gt;% st_drop_geometry() %&gt;%
+  filter(SR&lt;5) %&gt;%
+  dplyr::select(cell)
+#get species roster and headwidth per hexbin 
+species_roster&lt;-final_cell_list %&gt;% 
+  filter(!cell %in% remove_cell$cell) %&gt;% #gives me only unique species per hexbin
+  group_by(cell, valid_species) %&gt;%
+  summarise(mean = mean(max_HW, na.rm =T)) %&gt;%
+  drop_na(cell)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;cell&#39;. You can override using the `.groups` argument.</code></pre>
+<p>The subsampling routine is very simple:</p>
+<pre class="r"><code>#ok let&#39;s run through the sampling routine
+species_roster1&lt;-subset(species_roster, cell == 1) #I get the species roster for cell 1
+samples&lt;-sample(1:nrow(species_roster1), 5, replace = F) #I then sample 5 random rows (species) w/o replacement from cell 209
+species_roster1&lt;-species_roster1[samples,] # I then grab the randomly sampled rows from the species roster of cell 209
+EnvStats::geoMean(species_roster1$mean) #then I calculate the average body size of those randomly sampled species</code></pre>
+<pre><code>## [1] 1.161719</code></pre>
+<p>We just need to repeat the above for every cell and do that 100 times with this code:</p>
+<pre class="r"><code>fillthis&lt;-data.frame(cell = rep(unique(species_roster$cell),100), geo_mean = rep(rep(NA, length(unique(species_roster$cell))),100))
+
+for(i in 1:nrow(fillthis)){
+  species_roster1&lt;-subset(species_roster, cell == fillthis$cell[i])
+  samples&lt;-sample(1:nrow(species_roster1), 5, replace = F)
+  species_roster1&lt;-species_roster1[samples,]
+  fillthis$geo_mean[i]&lt;-EnvStats::geoMean(species_roster1$mean)
+}
+head(fillthis)</code></pre>
+<pre><code>##   cell  geo_mean
+## 1    1 0.8999480
+## 2   10 0.7918654
+## 3  100 1.1222745
+## 4  101 0.5788188
+## 5  102 0.7878423
+## 6  109 1.1596468</code></pre>
+<p>‘Fillthis’ is now a dataframe with all our subsampling data. Essentially the total number of cells subsampled for 100 times each. Now we need to run the GLS for every iteration of subsampled hexbins:</p>
+<pre class="r"><code>#run gls model for every run
+fillthis$marker&lt;-rep(1:100, each = length(unique(species_roster$cell)))
+
+#get ATR,SR, and coordinates from model_df and join it to the fillthis
+model_df_subset&lt;-model_df %&gt;%
+  dplyr::select(cell,ATR,SR, lon, lat)
+fillthis&lt;-left_join(fillthis, model_df_subset, by = &quot;cell&quot;) %&gt;%
+  drop_na()
+
+#let&#39;s run these models now
+model_output = data.frame(marker = seq(1,100, length.out =  100), 
+                          effect_sz_atr = numeric(length = 100),
+                          std_err_atr = numeric(length = 100),
+                          p_val_atr = numeric(length = 100),
+                          r2 = numeric(length = 100))
+
+for (i in 1:nrow(model_output)) {
+  gls_model &lt;- gls(log(geo_mean) ~ ATR, 
+                   correlation = corHaversine(form=~lon+lat, mimic=&quot;corSpher&quot;), weights=varFixed(~1/SR),
+                   data = subset(fillthis[fillthis$marker == i,])) 
+  model_output$r2[i]&lt;-cor(predict(gls_model),  (subset(fillthis[fillthis$marker == i,])$geo_mean))^2
+  cs &lt;- as.data.frame(summary(gls_model)$tTable)
+  model_output$effect_sz_atr[i]&lt;-cs$Value[2] 
+  model_output$std_err_atr[i]&lt;-cs$Std.Error[2]
+  model_output$p_val_atr[i]&lt;-cs$`p-value`[2]
+}
+
+head(model_output)</code></pre>
+<pre><code>##   marker effect_sz_atr std_err_atr    p_val_atr         r2
+## 1      1   0.004176530 0.001602987 9.616125e-03 0.06681016
+## 2      2   0.002174543 0.001440772 1.322398e-01 0.06462952
+## 3      3   0.006410263 0.001561473 5.166047e-05 0.07619491
+## 4      4   0.001665516 0.001636960 3.097330e-01 0.05336088
+## 5      5   0.002695254 0.001679730 1.096021e-01 0.06487816
+## 6      6   0.004169120 0.001635849 1.129603e-02 0.07941607</code></pre>
+<p>Now let’s graph our model results:</p>
+<pre class="r"><code>model_output_graph&lt;-pivot_longer(model_output, 
+                                 cols = c(&quot;effect_sz_atr&quot;, &quot;std_err_atr&quot;, &quot;p_val_atr&quot;,
+                                          &quot;r2&quot;), 
+                                 values_to  = &quot;value&quot;) 
+model_output_graph$name&lt;-as.factor(model_output_graph$name)
+levels(model_output_graph$name)&lt;-c(&quot;Effect Size Temp Range&quot;, &quot;p-value&quot;, &quot;Correlation Coefficient&quot;, &quot;Standard Error&quot;)
+ggplot(model_output_graph) + 
+  geom_histogram(mapping = aes(x = value)) + 
+  facet_wrap(~name, scales = &quot;free&quot;) +
+  geom_vline(data = data.frame(xint=0.05,z=&quot;p-value&quot;), aes(xintercept = xint), linetype = &quot;dotted&quot;) +
+  labs(x=&quot;&quot;, y = &quot;&quot;)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="subsampling_files/figure-html/unnamed-chunk-12-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>We can see that from the 100 GLS models, we have a mostly significant effects of ATR on body size, we also see the correlation coefficient 7.5% which is a lot less than the actual model but that is expected as the data becomes more noisy with only 5 species being randomly sampled per bin. Overall, the subsampling gives evidence that the pattern, albeit weaker, is still present when reducing bias of possibly abundant or widespread species.</p>
+<p>Let’s map the average body size based off the subsampling for the entire world:</p>
+<pre class="r"><code>averages&lt;-fillthis %&gt;%
+  group_by(cell) %&gt;%
+  summarise(avg_bod_sz = mean(geo_mean))
+
+df_shape2&lt;-df_shp %&gt;% left_join(.,averages, by = &quot;cell&quot;)
+ggplot() +
+  geom_sf(data = df_shape2, aes(fill = avg_bod_sz, color = avg_bod_sz)) +
+  scale_fill_viridis_c()+
+  scale_color_viridis_c()+
+  labs(fill = &quot;Simulated\nBody\nSize&quot;, color = &quot;Simulated\nBody\nSize&quot;) +
+  theme(panel.background = element_rect(fill = &quot;black&quot;, colour = NA))</code></pre>
+<p><img src="subsampling_files/figure-html/unnamed-chunk-13-1.png" width="960" style="display: block; margin: auto;" /></p>
 </div>
 
 
