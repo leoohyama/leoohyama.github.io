@@ -347,6 +347,134 @@ $(document).ready(function () {
 <p>When analyzing data at large spatial scales, significant results of correlations between your response varible and predictor variable need to be better validated aside from usual metrics such as correlation coefficients. While cross-validation methods exist to validate the predictive power of a statistical analyses, such as a regression, sometimes the question that we need to ask is whether or not the pattern or correlation that is observed from the analysis is really there.</p>
 <p>Take for example a study where we run a model assessing the effects of temperature range on average body size for each assemblage. Our model shows a significant effect and a decent correlation coefficient, however there is a possibility that our results are a product of certain species influencing the data because they are more abundant or widespread. Now the question becomes whether our model is simply just capturing the variation that is contributed by only several abundant species. How do we test this?</p>
 <p>Random sampling is an efficient approach to solving this issue. By randomly sampling a number of species (usually the minimum number of species found in a assemblage) from each assemblage (without replacement, meaning the same species isn’t sampled twice) we pull a less biased species roster as such a less biased value of body size.</p>
+<p>Here I’ll show how to code a simple program in R to run subsampling.</p>
+</div>
+<div id="subsampling-in-r" class="section level1">
+<h1>Subsampling in R</h1>
+<p>Let’s load in our data. In this case we will use hexbin shapefiles.</p>
+<pre class="r"><code>#packages
+library(sf)
+library(tidyverse)
+library(nlme)
+library(viridis)</code></pre>
+<p>This is how you read in your shapefile data:</p>
+<pre class="r"><code>df_shp &lt;- st_read(
+  &quot;~/Desktop/hexbin_wenviron/hexbin_wenviron.shp&quot;)</code></pre>
+<pre><code>## Reading layer `hexbin_wenviron&#39; from data source `/Users/leoohyama/Desktop/hexbin_wenviron/hexbin_wenviron.shp&#39; using driver `ESRI Shapefile&#39;
+## Simple feature collection with 464 features and 10 fields
+## geometry type:  MULTIPOLYGON
+## dimension:      XY
+## bbox:           xmin: -177.958 ymin: -60.77272 xmax: 180 ymax: 83.6341
+## geographic CRS: WGS 84</code></pre>
+<pre class="r"><code>#Let&#39;s look at the data
+df_shp</code></pre>
+<pre><code>## Simple feature collection with 464 features and 10 fields
+## geometry type:  MULTIPOLYGON
+## dimension:      XY
+## bbox:           xmin: -177.958 ymin: -60.77272 xmax: 180 ymax: 83.6341
+## geographic CRS: WGS 84
+## First 10 features:
+##    cell SR  geo_avg         MAT         CM       MAP       WET      ATR
+## 1     1 56 1.091213   4.7616038  -7.087847  900.9742 300.04575 26.58891
+## 2     2 NA       NA  -0.7031792 -15.135383  638.4850 297.98941 30.03473
+## 3     3 NA       NA  -6.1747150 -22.750118  491.6231 190.38200 36.20150
+## 4     4 NA       NA -12.5492020 -29.791090  146.9178  70.94612 34.76204
+## 5     8 NA       NA  -8.4239092 -19.696692  446.2876 142.48109 22.76368
+## 6     9  7 1.688046   1.1910487  -9.261226  861.5570 276.14386 23.71292
+## 7    10 50 1.209047   0.9827181 -12.573601  832.6850 286.08417 29.55614
+## 8    11 NA       NA   2.6216834  -5.239853 1059.2101 371.68143 18.05475
+## 9    12 15 1.212341  -0.6845881 -17.013023  606.3929 253.82622 34.34307
+## 10   13 22 1.096853  -7.2203846 -28.350182  262.0726 130.85980 46.19601
+##         NPP       TREE                       geometry
+## 1  550.4055 54513.9180 MULTIPOLYGON (((8.674604 54...
+## 2  385.7403 11046.1836 MULTIPOLYGON (((-162.1393 5...
+## 3        NA  8948.4346 MULTIPOLYGON (((180 65.0922...
+## 4    0.0000   418.3625 MULTIPOLYGON (((178.8547 71...
+## 5        NA   314.5493 MULTIPOLYGON (((27.02076 78...
+## 6  332.4632 37050.3672 MULTIPOLYGON (((17.5353 68....
+## 7  420.8561 50186.0430 MULTIPOLYGON (((21.89008 65...
+## 8  420.8124 21194.8848 MULTIPOLYGON (((-158.6881 5...
+## 9  418.0304 27562.4551 MULTIPOLYGON (((-148.919 59...
+## 10 287.1639 17601.9375 MULTIPOLYGON (((-154.5998 7...</code></pre>
+<p>The data that was read in is a shapefile of the world divided into hexbins. Each row represent a hexbin polygon and there is information for different attributes for each of these hexbins:</p>
+<ul>
+<li>cell: hexbin cell identifier</li>
+<li>SR: species richness within a hexbin</li>
+<li>geo_avg: average size metric of all species inside that hexbin</li>
+<li>MAT: Mean annual temperature</li>
+<li>CM: Coldest month temperature</li>
+<li>MAP: Mean annual precipitation</li>
+<li>WET: Temperature of wettest month</li>
+<li>ATR: Annual temperature range</li>
+<li>NPP: Net primary productivity</li>
+<li>TREE: Tree density</li>
+</ul>
+<p><strong>Note:</strong> All data was averaged per hexbin</p>
+<p>In this case we consider a hexbin as a single assemblage as such the values per hexbin represent average values for each assemblage. We will also remove any assemblages with less than 5 species to set a biologically reasonable minimum species richness.</p>
+<p>A quick plot of this shows the distribution of body size across the world:</p>
+<pre class="r"><code>df_shp &lt;- df_shp %&gt;% filter(!SR&lt;5)
+ggplot() +
+  geom_sf(data = df_shp, aes(fill = geo_avg, color = geo_avg)) +
+  scale_fill_viridis_c()+
+  scale_color_viridis_c()+
+  labs(fill = &quot;Annual\nTemperature\nRange&quot;, color = &quot;Annual\nTemperature\nRange&quot;) +
+  theme(panel.background = element_rect(fill = &quot;black&quot;, colour = NA))</code></pre>
+<p><img src="subsampling_files/figure-html/unnamed-chunk-3-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Now let’s a build a model where we assess geo_avg (our variable for body size) as a function of ATR. We also need a model to account for spatial autocorrelation. We will use generalized least squares (GLS) regression as it permits analysis of data given the assumption that there is a high level or correlation between our residuals (a typical sign of spatial autocorrelation). Finally the model should also account for the species richness of each assemblage because more species may influence the average body size of an assemblage.To do this we need to grab coordinates for each assemblage, which we can do by getting the centroids of each hexbin:</p>
+<pre class="r"><code>#Get centroid coordinates
+centroid&lt;-st_centroid(df_shp)</code></pre>
+<pre><code>## Warning in st_centroid.sf(df_shp): st_centroid assumes attributes are constant
+## over geometries of x</code></pre>
+<pre><code>## Warning in st_centroid.sfc(st_geometry(x), of_largest_polygon =
+## of_largest_polygon): st_centroid does not give correct centroids for longitude/
+## latitude data</code></pre>
+<pre class="r"><code>df_shp2&lt;-cbind(df_shp,st_coordinates(centroid))
+model_df&lt;-df_shp2 %&gt;% st_drop_geometry() %&gt;%
+  dplyr::select(geo_avg, SR, ATR, X,Y) %&gt;% drop_na() #get rid of NAs here
+colnames(model_df)[4:5]&lt;-c(&quot;lon&quot;, &quot;lat&quot;) #rename X and Y as lat and lon
+head(model_df)</code></pre>
+<pre><code>##    geo_avg SR      ATR        lon      lat
+## 1 1.091213 56 26.58891   11.83942 58.94358
+## 2 1.688046  7 23.71292   19.20741 69.48915
+## 3 1.209047 50 29.55614   14.98825 64.43302
+## 4 1.212341 15 34.34307 -156.22050 60.92071
+## 5 1.096853 22 46.19601 -149.96528 67.06155
+## 6 1.128458 19 38.76278 -141.02016 61.56315</code></pre>
+<p>Now we have our dataset for our GLS model. Now we need to modify the gls() function to accept a spatial autocorrelation structure that accounts for the curvature of the earth. We can do this using modified code from stackoverflow:</p>
+<p>Now that we have modified the code we can run a GLS model:</p>
+<pre class="r"><code>t_range1 &lt;- gls(log(geo_avg) ~ ATR, weights=varFixed(~1/SR),
+                correlation = corHaversine(form=~lon+lat, mimic=&quot;corSpher&quot;), data = model_df)
+summary(t_range1)</code></pre>
+<pre><code>## Generalized least squares fit by REML
+##   Model: log(geo_avg) ~ ATR 
+##   Data: model_df 
+##         AIC       BIC   logLik
+##   -447.9113 -432.9522 227.9557
+## 
+## Correlation Structure: corHaversine
+##  Formula: ~lon + lat 
+##  Parameter estimate(s):
+##    range 
+## 4304.542 
+## Variance function:
+##  Structure: fixed weights
+##  Formula: ~1/SR 
+## 
+## Coefficients:
+##                   Value   Std.Error   t-value p-value
+## (Intercept) -0.17652234 0.022828624 -7.732500       0
+## ATR          0.00573877 0.001044526  5.494135       0
+## 
+##  Correlation: 
+##     (Intr)
+## ATR -0.869
+## 
+## Standardized residuals:
+##        Min         Q1        Med         Q3        Max 
+## -2.1339133 -0.2530978  0.2655791  0.7634458  2.4592526 
+## 
+## Residual standard error: 1.841149 
+## Degrees of freedom: 313 total; 311 residual</code></pre>
 </div>
 
 

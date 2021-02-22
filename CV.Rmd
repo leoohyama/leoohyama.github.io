@@ -15,6 +15,21 @@ knitr::opts_chunk$set(echo = TRUE)
 
 **2012-2016** Boise State University, BS Biology
 
+# Appointments
+
+**2020-Current** Biodiversity Institute Fellow, University of Florida
+
+**2019-Current** Graduate School Fellow, University of Florida
+
+**2019-Current** Teaching Assistant, University of Florida
+
+**2017-2019**	Teaching Associate, University of Central Florida
+
+**2016-2017**	Teaching Assistant, University of Central Florida
+
+**2015-16**	Learning Assistant, Boise State University
+
+
 # Publications
 
 **5** \*Hornfeldt, J., **L. Ohyama**, A. Lucky. 2020. Using Behavioral Experimentation to Understand the Social Structure of the Little Fire Ant (Wasmannia auropunctata) in Florida. UF Journal of Undergraduate Research 22.

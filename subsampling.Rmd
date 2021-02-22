@@ -13,3 +13,191 @@ When analyzing data at large spatial scales, significant results of correlations
 Take for example a study where we run a model assessing the effects of temperature range on average body size for each assemblage. Our model shows a significant effect and a decent correlation coefficient, however there is a possibility that our results are a product of certain species influencing the data because they are more abundant or widespread. Now the question becomes whether our model is simply just capturing the variation that is contributed by only several abundant species. How do we test this?
 
 Random sampling is an efficient approach to solving this issue. By randomly sampling a number of species (usually the minimum number of species found in a assemblage) from each assemblage (without replacement, meaning the same species isn't sampled twice) we pull a less biased species roster as such a less biased value of body size.
+
+Here I'll show how to code a simple program in R to run subsampling.
+
+# Subsampling in R
+
+Let's load in our data. In this case we will use hexbin shapefiles.
+
+```{r, message= FALSE}
+#packages
+library(sf)
+library(tidyverse)
+library(nlme)
+library(viridis)
+```
+
+This is how you read in your shapefile data:
+
+```{r}
+df_shp <- st_read(
+  "~/Desktop/hexbin_wenviron/hexbin_wenviron.shp")
+#Let's look at the data
+df_shp
+```
+
+The data that was read in is a shapefile of the world divided into hexbins. Each row represent a hexbin polygon and there is information for different attributes for each of these hexbins:
+
+* cell: hexbin cell identifier
+* SR: species richness within a hexbin
+* geo_avg: average size metric of all species inside that hexbin
+* MAT: Mean annual temperature
+* CM: Coldest month temperature
+* MAP: Mean annual precipitation
+* WET: Temperature of wettest month
+* ATR: Annual temperature range 
+* NPP: Net primary productivity
+* TREE: Tree density
+
+**Note:** All data was averaged per hexbin
+
+In this case we consider a hexbin as a single assemblage as such the values per hexbin represent average values for each assemblage. We will also remove any assemblages with less than 5 species to set a biologically reasonable minimum species richness.
+
+A quick plot of this shows the distribution of body size across the world:
+
+```{r, echo=TRUE, fig.align = "center", fig.width = 10}
+df_shp <- df_shp %>% filter(!SR<5)
+ggplot() +
+  geom_sf(data = df_shp, aes(fill = geo_avg, color = geo_avg)) +
+  scale_fill_viridis_c()+
+  scale_color_viridis_c()+
+  labs(fill = "Annual\nTemperature\nRange", color = "Annual\nTemperature\nRange") +
+  theme(panel.background = element_rect(fill = "black", colour = NA))
+```
+
+Now let's a build a model where we assess geo_avg (our variable for body size) as a function of ATR. We also need a model to account for spatial autocorrelation. We will use generalized least squares (GLS) regression as it permits analysis of data given the assumption that there is a high level or correlation between our residuals (a typical sign of spatial autocorrelation). Finally the model should also account for the species richness of each assemblage because more species may influence the average body size of an assemblage.To do this we need to grab coordinates for each assemblage, which we can do by getting the centroids of each hexbin:
+
+```{r, warnings = FALSE}
+#Get centroid coordinates
+centroid<-st_centroid(df_shp)
+df_shp2<-cbind(df_shp,st_coordinates(centroid))
+model_df<-df_shp2 %>% st_drop_geometry() %>%
+  dplyr::select(geo_avg, SR, ATR, X,Y) %>% drop_na() #get rid of NAs here
+colnames(model_df)[4:5]<-c("lon", "lat") #rename X and Y as lat and lon
+head(model_df)
+```
+
+Now we have our dataset for our GLS model. Now we need to modify the gls() function to accept a spatial autocorrelation structure that accounts for the curvature of the earth. We can do this using modified code from stackoverflow:
+
+```{r, include=FALSE}
+#setup haversine model
+#### corHaversine - spatial correlation with haversine distance
+
+# Calculates the geodesic distance between two points specified by radian latitude/longitude using Haversine formula.
+# output in km
+haversine <- function(x0, x1, y0, y1) {
+  a <- sin( (y1 - y0)/2 )^2 + cos(y0) * cos(y1) * sin( (x1 - x0)/2 )^2
+  v <- 2 * asin( min(1, sqrt(a) ) )
+  6371 * v
+}
+
+# function to compute geodesic haversine distance given two-column matrix of longitude/latitude
+# input is assumed in form decimal degrees if radians = F
+# note fields::rdist.earth is more efficient
+haversineDist <- function(xy, radians = F) {
+  if (ncol(xy) > 2) stop("Input must have two columns (longitude and latitude)")
+  if (radians == F) xy <- xy * pi/180
+  hMat <- matrix(NA, ncol = nrow(xy), nrow = nrow(xy))
+  for (i in 1:nrow(xy) ) {
+    for (j in i:nrow(xy) ) {
+      hMat[j,i] <- haversine(xy[i,1], xy[j,1], xy[i,2], xy[j,2]) 
+    }
+  }
+  as.dist(hMat)
+}
+
+## for most methods, machinery from corSpatial will work without modification
+Initialize.corHaversine <- nlme:::Initialize.corSpatial
+recalc.corHaversine <- nlme:::recalc.corSpatial
+Variogram.corHaversine <- nlme:::Variogram.corSpatial
+corFactor.corHaversine <- nlme:::corFactor.corSpatial
+corMatrix.corHaversine <- nlme:::corMatrix.corSpatial
+coef.corHaversine <- nlme:::coef.corSpatial
+"coef<-.corHaversine" <- nlme:::"coef<-.corSpatial"
+
+## Constructor for the corHaversine class
+corHaversine <- function(value = numeric(0), form = ~ 1, mimic = "corSpher", nugget = FALSE, fixed = FALSE) {
+  spClass <- "corHaversine"
+  attr(value, "formula") <- form
+  attr(value, "nugget") <- nugget
+  attr(value, "fixed") <- fixed
+  attr(value, "function") <- mimic
+  class(value) <- c(spClass, "corStruct")
+  value
+}   # end corHaversine class
+environment(corHaversine) <- asNamespace("nlme")
+
+Dim.corHaversine <- function(object, groups, ...) {
+  if (missing(groups)) return(attr(object, "Dim"))
+  val <- Dim.corStruct(object, groups)
+  val[["start"]] <- c(0, cumsum(val[["len"]] * (val[["len"]] - 1)/2)[-val[["M"]]])
+  ## will use third component of Dim list for spClass
+  names(val)[3] <- "spClass"
+  val[[3]] <- match(attr(object, "function"), c("corSpher", "corExp", "corGaus", "corLin", "corRatio"), 0)
+  val
+}
+environment(Dim.corHaversine) <- asNamespace("nlme")
+
+## getCovariate method for corHaversine class
+getCovariate.corHaversine <- function(object, form = formula(object), data) {
+  if (is.null(covar <- attr(object, "covariate"))) {          # if object lacks covariate attribute
+    if (missing(data)) {                                    # if object lacks data
+      stop("need data to calculate covariate")
+    }
+    covForm <- getCovariateFormula(form)
+    if (length(all.vars(covForm)) > 0) {                    # if covariate present
+      if (attr(terms(covForm), "intercept") == 1) {       # if formula includes intercept
+        covForm <- eval(parse(text = paste("~", deparse(covForm[[2]]),"-1",sep="")))    # remove intercept
+      }
+      # can only take covariates with correct names
+      if (length(all.vars(covForm)) > 2) stop("corHaversine can only take two covariates, 'lon' and 'lat'")
+      if ( !all(all.vars(covForm) %in% c("lon", "lat")) ) stop("covariates must be named 'lon' and 'lat'")
+      covar <- as.data.frame(unclass(model.matrix(covForm, model.frame(covForm, data, drop.unused.levels = TRUE) ) ) )
+      covar <- covar[,order(colnames(covar), decreasing = T)] # order as lon ... lat
+    }
+    else {
+      covar <- NULL
+    }
+    
+    if (!is.null(getGroupsFormula(form))) {                 # if groups in formula extract covar by groups
+      grps <- getGroups(object, data = data)
+      if (is.null(covar)) {
+        covar <- lapply(split(grps, grps), function(x) as.vector(dist(1:length(x) ) ) )     # filler?
+      } 
+      else {
+        giveDist <- function(el) {
+          el <- as.matrix(el)
+          if (nrow(el) > 1) as.vector(haversineDist(el))                       
+          else numeric(0)
+        }
+        covar <- lapply(split(covar, grps), giveDist )
+      }
+      covar <- covar[sapply(covar, length) > 0]  # no 1-obs groups
+    } 
+    else {                                  # if no groups in formula extract distance
+      if (is.null(covar)) {
+        covar <- as.vector(dist(1:nrow(data) ) )
+      } 
+      else {
+        covar <- as.vector(haversineDist(as.matrix(covar) ) )
+      }
+    }
+    if (any(unlist(covar) == 0)) {          # check that no distances are zero
+      stop("cannot have zero distances in \"corHaversine\"")
+    }
+  }
+  covar
+}   # end method getCovariate
+environment(getCovariate.corHaversine) <- asNamespace("nlme")
+```
+
+Now that we have modified the code we can run a GLS model:
+
+```{r}
+t_range1 <- gls(log(geo_avg) ~ ATR, weights=varFixed(~1/SR),
+                correlation = corHaversine(form=~lon+lat, mimic="corSpher"), data = model_df)
+summary(t_range1)
+```
+
+
