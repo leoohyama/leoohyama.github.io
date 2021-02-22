@@ -17,7 +17,7 @@ navbar:
     - text: Macroecology
       href: macroecology.html
     - text: Island Biogeography
-      href: readings-module2.html
+      href: SAR.html
     - text: Community Ecology
       href: readings-module3.html
     - text: Non-ants
@@ -28,4 +28,6 @@ navbar:
       href: NYCflights.html
     - text: Global Maps
       href: maps.html
+    - text: Subsampling at the global scale
+      href: subsampling.html
   

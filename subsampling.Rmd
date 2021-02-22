@@ -1,0 +1,15 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Subsampling
+
+When analyzing data at large spatial scales, significant results of correlations between your response varible and predictor variable need to be better validated aside from usual metrics such as correlation coefficients. While cross-validation methods exist to validate the predictive power of a statistical analyses, such as a regression, sometimes the question that we need to ask is whether or not the pattern or correlation that is observed from the analysis is really there. 
+
+Take for example a study where we run a model assessing the effects of temperature range on average body size for each assemblage. Our model shows a significant effect and a decent correlation coefficient, however there is a possibility that our results are a product of certain species influencing the data because they are more abundant or widespread. Now the question becomes whether our model is simply just capturing the variation that is contributed by only several abundant species. How do we test this?
+
+Random sampling is an efficient approach to solving this issue. By randomly sampling a number of species (usually the minimum number of species found in a assemblage) from each assemblage (without replacement, meaning the same species isn't sampled twice) we pull a less biased species roster as such a less biased value of body size.
