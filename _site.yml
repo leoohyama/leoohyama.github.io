@@ -26,4 +26,6 @@ navbar:
     menu:
     - text: Data Exploration
       href: NYCflights.html
+    - text: Global Maps
+      href: maps.html
   

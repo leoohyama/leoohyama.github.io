@@ -1,0 +1,112 @@
+---
+title: "Global maps in R"
+author: "Leo_Ohyama"
+output: html_document
+---
+
+# Mapping in R
+
+Making effective maps is extremely important to convey data that is spatially distributed. For me, I started making maps in ArcMap but I quickly realized that license access was limited with the program. Therefore, most of my map-making activities has delved into R or QGIS (a open souce alternative of ArcMap). There are pros and cons of map making in R. Pro: You are given better control and a wider variety of tools to make beautiful maps. Cons: R can be very slow when it comes to plotting depending on if you parallel process or not. R may also be slower when it comes to basic operations such as intersecting geospatial data etc. So if you want speed, I suggest using QGIS and then plotting in R.
+
+There are different types of geospatial data we can map in R (rasters, polygons, points, etc.), this tutorial will mainly go over polygons shapefiles, more specifically multipolygon shapefiles.
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading in your data
+
+```{r, message= FALSE}
+#packages
+library(sf)
+library(tidyverse)
+library(lwgeom) 
+```
+
+This is how you read in your shapefile data:
+
+```{r}
+df_shp <- st_read(
+  "~/Desktop/hexbin_wenviron/hexbin_wenviron.shp")
+
+#Let's look at the data
+df_shp
+```
+
+You'll notice that the object that we read in is called a simple feature, this is because we are using the 'sf' package to read in the data. Geospatial data is better manipulated as a simple feature class because it provdes more flexibility on what can be done with the data.
+
+The data that was read in is a shapefile of the world divided into hexbins. Each row represent a hexbin polygon and there is information for different attributes for each of these hexbins:
+
+*cell: hexbin cell identifier
+*SR: species richness within a hexbin
+*geo_avg: average size metric of all species inside that hexbin
+*MAT: Mean annual temperature
+*CM: Coldest month temperature
+*MAP: Mean annual precipitation
+*WET: Temperature of wettest month
+*ATR: Annual temperature range 
+*NPP: Net primary productivity
+*TREE: Tree density
+
+**Note:** All data was averaged per hexbin
+
+# Basic plot of hexbin
+
+Here's how we plot the basic shapefile
+```{r, echo=TRUE, fig.align = "center", fig.width = 10}
+ggplot() +
+  geom_sf(data = df_shp)
+```
+
+Awesome, looks beautiful. We now have a map of the world in hexbin format. But let's show more information. Let's plot the world's mean annual precipiation and let's add some color.
+```{r, echo=TRUE, fig.align = "center", fig.width = 10}
+ggplot() +
+  geom_sf(data = df_shp, aes(fill = ATR, color = ATR)) +
+  scale_fill_distiller(palette = "Spectral") +
+  scale_color_distiller(palette = "Spectral") +
+  labs(fill = "Annual\nTemperature\nRange", color = "Annual\nTemperature\nRange") +
+  theme(panel.background = element_rect(fill = "black", colour = NA))
+```
+
+# Projections
+Ok, but there's another issue to tackle. While that map is great it may not represent the area of the earth's various continents properly. Depending on the scale of your maps you may want to pick an appropriate projection. This tutorial is not going to teach you about projections. Instead I'll show you code on how to re-project your amazing map to be more amazing.
+
+First, we need to reproject the shapefile. We wil reproject using the mollweide projection, which is often best suited for global maps. 
+
+```{r}
+st_crs(df_shp) #this tells you what coordinate reference system you are in
+new_proj <- "+proj=moll +datum=WGS84 +no_defs +over" #assign mollweide projection 
+#use the 'lwgeom' package to reproject
+df_shp2 <- st_transform(df_shp, crs = new_proj)
+st_crs(df_shp2) #notice how we changed the projected CRS?
+```
+
+Ok now let's plot this:
+```{r, echo=TRUE, fig.align = "center", fig.width = 10}
+ggplot() +
+  geom_sf(data = df_shp2, aes(fill = ATR, color = ATR)) +
+  scale_fill_distiller(palette = "Spectral") +
+  scale_color_distiller(palette = "Spectral") +
+  labs(fill = "Annual\nTemperature\nRange", color = "Annual\nTemperature\nRange") +
+  theme(panel.background = element_rect(fill = "black", colour = NA))
+```
+
+We can also look at specific parts of the globe and get even more creative. Let's say we wanted to center on Florida but at a global scale? Let's first get the latitude and longitude of Gainesvile, Fl which is:
+29.6516° N, -82.3248° W.
+We feed these coordinates into the new projection shown below for lat and lon:
+```{r}
+df_shp_FL <- st_transform(df_shp, "+proj=laea +y_0=0 +lon_0=-82 +lat_0=29 +ellps=WGS84 +no_defs")
+```
+
+```{r, echo=TRUE, fig.align = "center", fig.width = 10}
+ggplot() +
+  geom_sf(data = df_shp_FL, aes(fill = ATR, color = ATR)) +
+  scale_fill_distiller(palette = "Spectral") +
+  scale_color_distiller(palette = "Spectral") +
+  labs(fill = "Annual\nTemperature\nRange", color = "Annual\nTemperature\nRange") +
+  theme_dark()
+```
+
+Now you have seen a variety of ways to improve your maps. 

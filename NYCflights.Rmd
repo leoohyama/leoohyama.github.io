@@ -19,6 +19,16 @@ library(nycflights13) #new package
 library(GGally) #new package
 ```
 
+This script comes from my lecture on data exploration in R. I try and use open-source data whenever possible. The highlights of this script is to:
+
+1. Provide the user with an understanding of how to assess their dtata structure (e.g. how many rows, how many columns)
+
+2. Compare central tendency measures across different types of data distribution
+
+3. Utilize different packages to quickly assess correlaitons between numeric or continuous variables within a data set
+
+4. Utilize the tidyverse, to rapidly explore data and  patterns with a relatively large dataset
+
 # Tomato yields: Assessing and quickly examining data structure
 
 Here we use a dataset on tomota yields from different environments and different genotypes from the package 'agridat'
@@ -96,14 +106,14 @@ ggplot(tomato) +
 
 This time there is a spread. Median is less than the mean. The median is actually more closer to the mode of the yield (taller bars) than the mean.
 
-#Correlations
+# Correlations
 We can first use the GGally package. The ggpairs() code provides us with scatter plots that plot variables against one another in a pairwise fashion. We also see the distribution of the data and the correlation coefficients between a pair of variables
 ```{r}
 ggpairs(tomato %>% dplyr::select(pH, P, K, weight, yield)) #select only 5 variables #interest
 ```
 
 
-let's use the corrplot package to identify which variables are correlated with one another. First we need to make a correlation matrix of the data. Here we calculate a correlation matrix using a pearson's correlation coefficicent method. Keep in mind that the pearson's method often assumes nromality between variables which we did not check. Other methods such as spearman's correlation coefficent can be used for non-normal data.
+Let's use the corrplot package to identify which variables are correlated with one another. First we need to make a correlation matrix of the data. Here we calculate a correlation matrix using a pearson's correlation coefficicent method. Keep in mind that the pearson's method often assumes nromality between variables which we did not check. Other methods such as spearman's correlation coefficent can be used for non-normal data.
 
 ```{r}
 cor_tomatos<-cor(tomato %>% select(-env,-gen) %>% na.omit(), method = c("pearson"))
@@ -116,13 +126,13 @@ corrplot(cor_tomatos, method = "circle", type = "upper")
 ```
 
 
-#If you want both the circles and the correlation coefficients you can run this line:
+# If you want both the circles and the correlation coefficients you can run this line:
 ```{r}
 corrplot.mixed(cor_tomatos)
 ```
 
 
-#Data exploration approaches with the tidyverse
+# Data exploration approaches with the tidyverse
 Here we use a dataset named 'flights' from the nycflights12 package. This is data showing every flight to come out of three New York Airports in the year 2013 (domestic only). It comes with the main data named 'flights' but also comes with extra datasets (or metadata files) names 'airlines' and 'airports'. 'Airlines' provides the airline name for each carrier code (e.g. UA is United Airlines) 'Airports provides an airport name for each destination code (MCO is Orlando)
 
 
@@ -223,7 +233,7 @@ Looks like Delta  (DL) flew 629 total flights to Atlanta (ATL). Atlanta must be 
 
 
 
-#R challenge used for actual lab activity. Answers provided
+# R challenge used for actual lab activity. Answers provided
 ######################################################################
 #### R CHALLENGE Data Exploration DUE XYZ
 #'For this challenge we will use the flights dataset

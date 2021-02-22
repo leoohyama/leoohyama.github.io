@@ -9,7 +9,7 @@ knitr::include_graphics("Images/Intro_photo.jpg")
 
 ## Welcome!
 
-Hi and welcome to my website (still a work in progress). My name is Leo Ohyama, and I'm currently a PhD student at the University of Florida. My main research foci revoles around **macroecology**, **biological scaling**, and **island biogeography**. 
+Hi and welcome to my website (still a work in progress). My name is Leo Ohyama, and I'm currently a PhD student at the University of Florida. My main research tends to involve **macroecology**, **biological scaling**, and **island biogeography**. 
 
 Currently one of my main passions revolve around the concept of biological scaling in biodiversity. The fact that processes and patterns in diversity vary across scales of space, time, and biological organizations both puzzle and fascinate me. My main focus is tied to the effects of spatial scaling on the biodiversity of ants. Ants are the taxon of focus for me because they are: globally distributed, taxonomically tractable, and contribute heavily to the functioning of many ecosystems. They also display magnificent examples of biological scaling in terms of biological organization as they are eusocial organisms with scales spanning a tiny individual worker caste to entire colonies with thousands of individuals.
 
