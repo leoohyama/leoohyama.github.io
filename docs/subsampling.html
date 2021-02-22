@@ -301,7 +301,7 @@ $(document).ready(function () {
       <a href="SAR.html">Island Biogeography</a>
     </li>
     <li>
-      <a href="readings-module3.html">Community Ecology</a>
+      <a href="thiefant.html">Community Ecology</a>
     </li>
     <li>
       <a href="readings-module4.html">Non-ants</a>
@@ -344,8 +344,8 @@ $(document).ready(function () {
 
 <div id="subsampling" class="section level1">
 <h1>Subsampling</h1>
-<p>When analyzing data at large spatial scales, significant results of correlations between your response varible and predictor variable need to be better validated aside from usual metrics such as correlation coefficients. While cross-validation methods exist to validate the predictive power of a statistical analyses, such as a regression, sometimes the question that we need to ask is whether or not the pattern or correlation that is observed from the analysis is really there.</p>
-<p>Take for example a study where we run a model assessing the effects of temperature range on average body size for each assemblage. Our model shows a significant effect and a decent correlation coefficient, however there is a possibility that our results are a product of certain species influencing the data because they are more abundant or widespread. Now the question becomes whether our model is simply just capturing the variation that is contributed by only several abundant species. How do we test this?</p>
+<p>When analyzing data at large spatial scales, significant results of correlations between your response variable and predictor variable need to be better validated aside from usual metrics such as correlation coefficients. While cross-validation methods exist to validate the predictive power of a statistical analysis, such as a regression, sometimes the question that we need to ask is whether or not the pattern or correlation that is observed from the analysis is really there.</p>
+<p>Take for example a study where we run a model assessing the effects of temperature range on the average assemblage body size of beetles. Our model shows a significant effect and a decent correlation coefficient, however there is a possibility that our results are a product of certain species influencing the data because they are more abundant or widespread. Now the question becomes whether our model is simply just capturing the variation that is contributed by only several abundant species. How do we test this?</p>
 <p>Random sampling is an efficient approach to solving this issue. By randomly sampling a number of species (usually the minimum number of species found in a assemblage) from each assemblage (without replacement, meaning the same species isn’t sampled twice) we pull a less biased species roster as such a less biased value of body size.</p>
 <p>Here I’ll show how to code a simple program in R to run subsampling.</p>
 </div>
@@ -417,11 +417,13 @@ df_shp</code></pre>
 df_shp &lt;- df_shp %&gt;% filter(!SR&lt;5)
 
 ggplot() +
+  geom_sf(data = df_shp_master, alpha = 0.7) +
   geom_sf(data = df_shp, aes(fill = geo_avg, color = geo_avg)) +
   scale_fill_viridis_c()+
   scale_color_viridis_c()+
   labs(fill = &quot;Body Size&quot;, color = &quot;Body Size&quot;) +
-  theme(panel.background = element_rect(fill = &quot;black&quot;, colour = NA))</code></pre>
+  theme(panel.background = element_rect(fill = &quot;black&quot;, colour = NA),
+        panel.grid = element_blank())</code></pre>
 <p><img src="subsampling_files/figure-html/unnamed-chunk-3-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>Now let’s a build a model where we assess geo_avg (our variable for body size) as a function of ATR. We also need a model to account for spatial autocorrelation. We will use generalized least squares (GLS) regression as it permits analysis of data given the assumption that there is a high level or correlation between our residuals (a typical sign of spatial autocorrelation). Finally the model should also account for the species richness of each assemblage because more species may influence the average body size of an assemblage.To do this we need to grab coordinates for each assemblage, which we can do by getting the centroids of each hexbin:</p>
 <pre class="r"><code>#Get centroid coordinates
@@ -444,6 +446,115 @@ head(model_df)</code></pre>
 ## 5   13 1.096853 22 46.19601 -149.96528 67.06155
 ## 6   22 1.128458 19 38.76278 -141.02016 61.56315</code></pre>
 <p>Now we have our dataset for our GLS model. Now we need to modify the gls() function to accept a spatial autocorrelation structure that accounts for the curvature of the earth. We can do this using modified code from stackoverflow:</p>
+<pre class="r"><code>#setup haversine model
+#### corHaversine - spatial correlation with haversine distance
+
+# Calculates the geodesic distance between two points specified by radian latitude/longitude using Haversine formula.
+# output in km
+haversine &lt;- function(x0, x1, y0, y1) {
+  a &lt;- sin( (y1 - y0)/2 )^2 + cos(y0) * cos(y1) * sin( (x1 - x0)/2 )^2
+  v &lt;- 2 * asin( min(1, sqrt(a) ) )
+  6371 * v
+}
+
+# function to compute geodesic haversine distance given two-column matrix of longitude/latitude
+# input is assumed in form decimal degrees if radians = F
+# note fields::rdist.earth is more efficient
+haversineDist &lt;- function(xy, radians = F) {
+  if (ncol(xy) &gt; 2) stop(&quot;Input must have two columns (longitude and latitude)&quot;)
+  if (radians == F) xy &lt;- xy * pi/180
+  hMat &lt;- matrix(NA, ncol = nrow(xy), nrow = nrow(xy))
+  for (i in 1:nrow(xy) ) {
+    for (j in i:nrow(xy) ) {
+      hMat[j,i] &lt;- haversine(xy[i,1], xy[j,1], xy[i,2], xy[j,2]) 
+    }
+  }
+  as.dist(hMat)
+}
+
+## for most methods, machinery from corSpatial will work without modification
+Initialize.corHaversine &lt;- nlme:::Initialize.corSpatial
+recalc.corHaversine &lt;- nlme:::recalc.corSpatial
+Variogram.corHaversine &lt;- nlme:::Variogram.corSpatial
+corFactor.corHaversine &lt;- nlme:::corFactor.corSpatial
+corMatrix.corHaversine &lt;- nlme:::corMatrix.corSpatial
+coef.corHaversine &lt;- nlme:::coef.corSpatial
+&quot;coef&lt;-.corHaversine&quot; &lt;- nlme:::&quot;coef&lt;-.corSpatial&quot;
+
+## Constructor for the corHaversine class
+corHaversine &lt;- function(value = numeric(0), form = ~ 1, mimic = &quot;corSpher&quot;, nugget = FALSE, fixed = FALSE) {
+  spClass &lt;- &quot;corHaversine&quot;
+  attr(value, &quot;formula&quot;) &lt;- form
+  attr(value, &quot;nugget&quot;) &lt;- nugget
+  attr(value, &quot;fixed&quot;) &lt;- fixed
+  attr(value, &quot;function&quot;) &lt;- mimic
+  class(value) &lt;- c(spClass, &quot;corStruct&quot;)
+  value
+}   # end corHaversine class
+environment(corHaversine) &lt;- asNamespace(&quot;nlme&quot;)
+
+Dim.corHaversine &lt;- function(object, groups, ...) {
+  if (missing(groups)) return(attr(object, &quot;Dim&quot;))
+  val &lt;- Dim.corStruct(object, groups)
+  val[[&quot;start&quot;]] &lt;- c(0, cumsum(val[[&quot;len&quot;]] * (val[[&quot;len&quot;]] - 1)/2)[-val[[&quot;M&quot;]]])
+  ## will use third component of Dim list for spClass
+  names(val)[3] &lt;- &quot;spClass&quot;
+  val[[3]] &lt;- match(attr(object, &quot;function&quot;), c(&quot;corSpher&quot;, &quot;corExp&quot;, &quot;corGaus&quot;, &quot;corLin&quot;, &quot;corRatio&quot;), 0)
+  val
+}
+environment(Dim.corHaversine) &lt;- asNamespace(&quot;nlme&quot;)
+
+## getCovariate method for corHaversine class
+getCovariate.corHaversine &lt;- function(object, form = formula(object), data) {
+  if (is.null(covar &lt;- attr(object, &quot;covariate&quot;))) {          # if object lacks covariate attribute
+    if (missing(data)) {                                    # if object lacks data
+      stop(&quot;need data to calculate covariate&quot;)
+    }
+    covForm &lt;- getCovariateFormula(form)
+    if (length(all.vars(covForm)) &gt; 0) {                    # if covariate present
+      if (attr(terms(covForm), &quot;intercept&quot;) == 1) {       # if formula includes intercept
+        covForm &lt;- eval(parse(text = paste(&quot;~&quot;, deparse(covForm[[2]]),&quot;-1&quot;,sep=&quot;&quot;)))    # remove intercept
+      }
+      # can only take covariates with correct names
+      if (length(all.vars(covForm)) &gt; 2) stop(&quot;corHaversine can only take two covariates, &#39;lon&#39; and &#39;lat&#39;&quot;)
+      if ( !all(all.vars(covForm) %in% c(&quot;lon&quot;, &quot;lat&quot;)) ) stop(&quot;covariates must be named &#39;lon&#39; and &#39;lat&#39;&quot;)
+      covar &lt;- as.data.frame(unclass(model.matrix(covForm, model.frame(covForm, data, drop.unused.levels = TRUE) ) ) )
+      covar &lt;- covar[,order(colnames(covar), decreasing = T)] # order as lon ... lat
+    }
+    else {
+      covar &lt;- NULL
+    }
+    
+    if (!is.null(getGroupsFormula(form))) {                 # if groups in formula extract covar by groups
+      grps &lt;- getGroups(object, data = data)
+      if (is.null(covar)) {
+        covar &lt;- lapply(split(grps, grps), function(x) as.vector(dist(1:length(x) ) ) )     # filler?
+      } 
+      else {
+        giveDist &lt;- function(el) {
+          el &lt;- as.matrix(el)
+          if (nrow(el) &gt; 1) as.vector(haversineDist(el))                       
+          else numeric(0)
+        }
+        covar &lt;- lapply(split(covar, grps), giveDist )
+      }
+      covar &lt;- covar[sapply(covar, length) &gt; 0]  # no 1-obs groups
+    } 
+    else {                                  # if no groups in formula extract distance
+      if (is.null(covar)) {
+        covar &lt;- as.vector(dist(1:nrow(data) ) )
+      } 
+      else {
+        covar &lt;- as.vector(haversineDist(as.matrix(covar) ) )
+      }
+    }
+    if (any(unlist(covar) == 0)) {          # check that no distances are zero
+      stop(&quot;cannot have zero distances in \&quot;corHaversine\&quot;&quot;)
+    }
+  }
+  covar
+}   # end method getCovariate
+environment(getCovariate.corHaversine) &lt;- asNamespace(&quot;nlme&quot;)</code></pre>
 <p>Now that we have modified the code we can run a GLS model:</p>
 <pre class="r"><code>t_range1 &lt;- gls(log(geo_avg) ~ ATR, weights=varFixed(~1/SR),
                 correlation = corHaversine(form=~lon+lat, mimic=&quot;corSpher&quot;), data = model_df)
@@ -511,12 +622,13 @@ species_roster&lt;-final_cell_list %&gt;%
 <p>The subsampling routine is very simple:</p>
 <pre class="r"><code>#ok let&#39;s run through the sampling routine
 species_roster1&lt;-subset(species_roster, cell == 1) #I get the species roster for cell 1
-samples&lt;-sample(1:nrow(species_roster1), 5, replace = F) #I then sample 5 random rows (species) w/o replacement from cell 209
-species_roster1&lt;-species_roster1[samples,] # I then grab the randomly sampled rows from the species roster of cell 209
+samples&lt;-sample(1:nrow(species_roster1), 5, replace = F) #I then sample 5 random rows (species) w/o replacement from cell 1
+species_roster1&lt;-species_roster1[samples,] # I then grab the randomly sampled rows from the species roster of cell 1
 EnvStats::geoMean(species_roster1$mean) #then I calculate the average body size of those randomly sampled species</code></pre>
 <pre><code>## [1] 1.161719</code></pre>
 <p>We just need to repeat the above for every cell and do that 100 times with this code:</p>
-<pre class="r"><code>fillthis&lt;-data.frame(cell = rep(unique(species_roster$cell),100), geo_mean = rep(rep(NA, length(unique(species_roster$cell))),100))
+<pre class="r"><code>set.seed(121212)
+fillthis&lt;-data.frame(cell = rep(unique(species_roster$cell),100), geo_mean = rep(rep(NA, length(unique(species_roster$cell))),100))
 
 for(i in 1:nrow(fillthis)){
   species_roster1&lt;-subset(species_roster, cell == fillthis$cell[i])
@@ -526,12 +638,12 @@ for(i in 1:nrow(fillthis)){
 }
 head(fillthis)</code></pre>
 <pre><code>##   cell  geo_mean
-## 1    1 0.8999480
-## 2   10 0.7918654
-## 3  100 1.1222745
-## 4  101 0.5788188
-## 5  102 0.7878423
-## 6  109 1.1596468</code></pre>
+## 1    1 1.0093369
+## 2   10 1.1691026
+## 3  100 0.9052897
+## 4  101 0.8620742
+## 5  102 0.7608040
+## 6  109 0.6915264</code></pre>
 <p>‘Fillthis’ is now a dataframe with all our subsampling data. Essentially the total number of cells subsampled for 100 times each. Now we need to run the GLS for every iteration of subsampled hexbins:</p>
 <pre class="r"><code>#run gls model for every run
 fillthis$marker&lt;-rep(1:100, each = length(unique(species_roster$cell)))
@@ -562,12 +674,12 @@ for (i in 1:nrow(model_output)) {
 
 head(model_output)</code></pre>
 <pre><code>##   marker effect_sz_atr std_err_atr    p_val_atr         r2
-## 1      1   0.004176530 0.001602987 9.616125e-03 0.06681016
-## 2      2   0.002174543 0.001440772 1.322398e-01 0.06462952
-## 3      3   0.006410263 0.001561473 5.166047e-05 0.07619491
-## 4      4   0.001665516 0.001636960 3.097330e-01 0.05336088
-## 5      5   0.002695254 0.001679730 1.096021e-01 0.06487816
-## 6      6   0.004169120 0.001635849 1.129603e-02 0.07941607</code></pre>
+## 1      1   0.002186344 0.001519873 1.512964e-01 0.07277665
+## 2      2   0.004261957 0.001607867 8.443891e-03 0.07380673
+## 3      3   0.004303247 0.001616429 8.166967e-03 0.05565122
+## 4      4   0.003159783 0.001727070 6.827250e-02 0.04910885
+## 5      5   0.007205955 0.001585183 7.846360e-06 0.06993944
+## 6      6   0.007573730 0.001633876 5.248710e-06 0.11508336</code></pre>
 <p>Now let’s graph our model results:</p>
 <pre class="r"><code>model_output_graph&lt;-pivot_longer(model_output, 
                                  cols = c(&quot;effect_sz_atr&quot;, &quot;std_err_atr&quot;, &quot;p_val_atr&quot;,
@@ -590,12 +702,14 @@ ggplot(model_output_graph) +
 
 df_shape2&lt;-df_shp %&gt;% left_join(.,averages, by = &quot;cell&quot;)
 ggplot() +
+  geom_sf(data = df_shp_master, alpha = 0.7) +
   geom_sf(data = df_shape2, aes(fill = avg_bod_sz, color = avg_bod_sz)) +
   scale_fill_viridis_c()+
   scale_color_viridis_c()+
   labs(fill = &quot;Simulated\nBody\nSize&quot;, color = &quot;Simulated\nBody\nSize&quot;) +
-  theme(panel.background = element_rect(fill = &quot;black&quot;, colour = NA))</code></pre>
-<p><img src="subsampling_files/figure-html/unnamed-chunk-13-1.png" width="960" style="display: block; margin: auto;" /></p>
+  theme(panel.background = element_rect(fill = &quot;black&quot;, colour = NA),
+        panel.grid = element_blank())</code></pre>
+<p><img src="subsampling_files/figure-html/unnamed-chunk-13-1.png" width="960" style="display: block; margin: auto;" /> We see that the subsampling visually shows the same patterns of body size.</p>
 </div>
 
 

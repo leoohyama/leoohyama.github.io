@@ -19,7 +19,7 @@ navbar:
     - text: Island Biogeography
       href: SAR.html
     - text: Community Ecology
-      href: readings-module3.html
+      href: thiefant.html
     - text: Non-ants
       href: readings-module4.html 
   - text: R stuff

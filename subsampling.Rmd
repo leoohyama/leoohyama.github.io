@@ -8,9 +8,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Subsampling
 
-When analyzing data at large spatial scales, significant results of correlations between your response varible and predictor variable need to be better validated aside from usual metrics such as correlation coefficients. While cross-validation methods exist to validate the predictive power of a statistical analyses, such as a regression, sometimes the question that we need to ask is whether or not the pattern or correlation that is observed from the analysis is really there. 
+When analyzing data at large spatial scales, significant results of correlations between your response variable and predictor variable need to be better validated aside from usual metrics such as correlation coefficients. While cross-validation methods exist to validate the predictive power of a statistical analysis, such as a regression, sometimes the question that we need to ask is whether or not the pattern or correlation that is observed from the analysis is really there. 
 
-Take for example a study where we run a model assessing the effects of temperature range on average body size for each assemblage. Our model shows a significant effect and a decent correlation coefficient, however there is a possibility that our results are a product of certain species influencing the data because they are more abundant or widespread. Now the question becomes whether our model is simply just capturing the variation that is contributed by only several abundant species. How do we test this?
+Take for example a study where we run a model assessing the effects of temperature range on the average assemblage body size of beetles. Our model shows a significant effect and a decent correlation coefficient, however there is a possibility that our results are a product of certain species influencing the data because they are more abundant or widespread. Now the question becomes whether our model is simply just capturing the variation that is contributed by only several abundant species. How do we test this?
 
 Random sampling is an efficient approach to solving this issue. By randomly sampling a number of species (usually the minimum number of species found in a assemblage) from each assemblage (without replacement, meaning the same species isn't sampled twice) we pull a less biased species roster as such a less biased value of body size.
 
@@ -62,11 +62,13 @@ df_shp_master<-df_shp #make a master copy in case we need it
 df_shp <- df_shp %>% filter(!SR<5)
 
 ggplot() +
+  geom_sf(data = df_shp_master, alpha = 0.7) +
   geom_sf(data = df_shp, aes(fill = geo_avg, color = geo_avg)) +
   scale_fill_viridis_c()+
   scale_color_viridis_c()+
   labs(fill = "Body Size", color = "Body Size") +
-  theme(panel.background = element_rect(fill = "black", colour = NA))
+  theme(panel.background = element_rect(fill = "black", colour = NA),
+        panel.grid = element_blank())
 ```
 
 Now let's a build a model where we assess geo_avg (our variable for body size) as a function of ATR. We also need a model to account for spatial autocorrelation. We will use generalized least squares (GLS) regression as it permits analysis of data given the assumption that there is a high level or correlation between our residuals (a typical sign of spatial autocorrelation). Finally the model should also account for the species richness of each assemblage because more species may influence the average body size of an assemblage.To do this we need to grab coordinates for each assemblage, which we can do by getting the centroids of each hexbin:
@@ -83,7 +85,7 @@ head(model_df)
 
 Now we have our dataset for our GLS model. Now we need to modify the gls() function to accept a spatial autocorrelation structure that accounts for the curvature of the earth. We can do this using modified code from stackoverflow:
 
-```{r, include=FALSE}
+```{r}
 #setup haversine model
 #### corHaversine - spatial correlation with haversine distance
 
@@ -235,14 +237,14 @@ The subsampling routine is very simple:
 ```{r}
 #ok let's run through the sampling routine
 species_roster1<-subset(species_roster, cell == 1) #I get the species roster for cell 1
-samples<-sample(1:nrow(species_roster1), 5, replace = F) #I then sample 5 random rows (species) w/o replacement from cell 209
-species_roster1<-species_roster1[samples,] # I then grab the randomly sampled rows from the species roster of cell 209
+samples<-sample(1:nrow(species_roster1), 5, replace = F) #I then sample 5 random rows (species) w/o replacement from cell 1
+species_roster1<-species_roster1[samples,] # I then grab the randomly sampled rows from the species roster of cell 1
 EnvStats::geoMean(species_roster1$mean) #then I calculate the average body size of those randomly sampled species
 ```
 
 We just need to repeat the above for every cell and do that 100 times with this code:
-
 ```{r}
+set.seed(121212)
 fillthis<-data.frame(cell = rep(unique(species_roster$cell),100), geo_mean = rep(rep(NA, length(unique(species_roster$cell))),100))
 
 for(i in 1:nrow(fillthis)){
@@ -311,14 +313,16 @@ averages<-fillthis %>%
 
 df_shape2<-df_shp %>% left_join(.,averages, by = "cell")
 ggplot() +
+  geom_sf(data = df_shp_master, alpha = 0.7) +
   geom_sf(data = df_shape2, aes(fill = avg_bod_sz, color = avg_bod_sz)) +
   scale_fill_viridis_c()+
   scale_color_viridis_c()+
   labs(fill = "Simulated\nBody\nSize", color = "Simulated\nBody\nSize") +
-  theme(panel.background = element_rect(fill = "black", colour = NA))
+  theme(panel.background = element_rect(fill = "black", colour = NA),
+        panel.grid = element_blank())
 
 ```
-
+We see that the subsampling visually shows the same patterns of body size.
 
 
 
