@@ -12,7 +12,7 @@
 <meta name="author" content="Leo_Ohyama" />
 
 
-<title>Mapping in R</title>
+<title>Global maps in R</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -319,6 +319,9 @@ $(document).ready(function () {
     <li>
       <a href="NYCflights.html">Data Exploration</a>
     </li>
+    <li>
+      <a href="maps.html">Global Maps</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -333,9 +336,8 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Mapping in R</h1>
+<h1 class="title toc-ignore">Global maps in R</h1>
 <h4 class="author">Leo_Ohyama</h4>
-<h4 class="date">2/21/2021</h4>
 
 </div>
 
@@ -349,7 +351,8 @@ $(document).ready(function () {
 <h1>Loading in your data</h1>
 <pre class="r"><code>#packages
 library(sf)
-library(tidyverse)</code></pre>
+library(tidyverse)
+library(lwgeom) </code></pre>
 <p>This is how you read in your shapefile data:</p>
 <pre class="r"><code>df_shp &lt;- st_read(
   &quot;~/Desktop/hexbin_wenviron/hexbin_wenviron.shp&quot;)</code></pre>
@@ -396,419 +399,95 @@ df_shp</code></pre>
 </div>
 <div id="basic-plot-of-hexbin" class="section level1">
 <h1>Basic plot of hexbin</h1>
-<p>Here’s how we plot the basic shapefile <img src="maps_files/figure-html/unnamed-chunk-3-1.png" width="960" style="display: block; margin: auto;" /></p>
-<p>Awesome, looks beautiful. We now have a map of the world in hexbin format. But let’s show more information. Let’s plot the world’s mean annual precipiation and let’s add some color. <img src="maps_files/figure-html/unnamed-chunk-4-1.png" width="960" style="display: block; margin: auto;" /></p>
-<pre><code>## List of 93
-##  $ line                      :List of 6
-##   ..$ colour       : chr &quot;black&quot;
-##   ..$ size         : num 0.5
-##   ..$ linetype     : num 1
-##   ..$ lineend      : chr &quot;butt&quot;
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_line&quot; &quot;element&quot;
-##  $ rect                      :List of 5
-##   ..$ fill         : chr &quot;white&quot;
-##   ..$ colour       : chr &quot;black&quot;
-##   ..$ size         : num 0.5
-##   ..$ linetype     : num 1
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_rect&quot; &quot;element&quot;
-##  $ text                      :List of 11
-##   ..$ family       : chr &quot;&quot;
-##   ..$ face         : chr &quot;plain&quot;
-##   ..$ colour       : chr &quot;black&quot;
-##   ..$ size         : num 11
-##   ..$ hjust        : num 0.5
-##   ..$ vjust        : num 0.5
-##   ..$ angle        : num 0
-##   ..$ lineheight   : num 0.9
-##   ..$ margin       : &#39;margin&#39; num [1:4] 0points 0points 0points 0points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ title                     : NULL
-##  $ aspect.ratio              : NULL
-##  $ axis.title                : NULL
-##  $ axis.title.x              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 2.75points 0points 0points 0points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ axis.title.x.top          :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 0
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 0points 0points 2.75points 0points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ axis.title.x.bottom       : NULL
-##  $ axis.title.y              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 1
-##   ..$ angle        : num 90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 0points 2.75points 0points 0points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ axis.title.y.left         : NULL
-##  $ axis.title.y.right        :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 0
-##   ..$ angle        : num -90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 0points 0points 0points 2.75points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ axis.text                 :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : chr &quot;grey30&quot;
-##   ..$ size         : &#39;rel&#39; num 0.8
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ axis.text.x               :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 2.2points 0points 0points 0points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ axis.text.x.top           :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 0
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 0points 0points 2.2points 0points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ axis.text.x.bottom        : NULL
-##  $ axis.text.y               :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 1
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 0points 2.2points 0points 0points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ axis.text.y.left          : NULL
-##  $ axis.text.y.right         :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 0
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 0points 0points 0points 2.2points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ axis.ticks                :List of 6
-##   ..$ colour       : chr &quot;grey20&quot;
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ lineend      : NULL
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_line&quot; &quot;element&quot;
-##  $ axis.ticks.x              : NULL
-##  $ axis.ticks.x.top          : NULL
-##  $ axis.ticks.x.bottom       : NULL
-##  $ axis.ticks.y              : NULL
-##  $ axis.ticks.y.left         : NULL
-##  $ axis.ticks.y.right        : NULL
-##  $ axis.ticks.length         : &#39;simpleUnit&#39; num 2.75points
-##   ..- attr(*, &quot;unit&quot;)= int 8
-##  $ axis.ticks.length.x       : NULL
-##  $ axis.ticks.length.x.top   : NULL
-##  $ axis.ticks.length.x.bottom: NULL
-##  $ axis.ticks.length.y       : NULL
-##  $ axis.ticks.length.y.left  : NULL
-##  $ axis.ticks.length.y.right : NULL
-##  $ axis.line                 :List of 6
-##   ..$ colour       : chr &quot;black&quot;
-##   ..$ size         : &#39;rel&#39; num 1
-##   ..$ linetype     : NULL
-##   ..$ lineend      : NULL
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_line&quot; &quot;element&quot;
-##  $ axis.line.x               : NULL
-##  $ axis.line.x.top           : NULL
-##  $ axis.line.x.bottom        : NULL
-##  $ axis.line.y               : NULL
-##  $ axis.line.y.left          : NULL
-##  $ axis.line.y.right         : NULL
-##  $ legend.background         :List of 5
-##   ..$ fill         : NULL
-##   ..$ colour       : logi NA
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_rect&quot; &quot;element&quot;
-##  $ legend.margin             : &#39;margin&#39; num [1:4] 5.5points 5.5points 5.5points 5.5points
-##   ..- attr(*, &quot;unit&quot;)= int 8
-##  $ legend.spacing            : &#39;simpleUnit&#39; num 11points
-##   ..- attr(*, &quot;unit&quot;)= int 8
-##  $ legend.spacing.x          : NULL
-##  $ legend.spacing.y          : NULL
-##  $ legend.key                : list()
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_blank&quot; &quot;element&quot;
-##  $ legend.key.size           : &#39;simpleUnit&#39; num 1.2lines
-##   ..- attr(*, &quot;unit&quot;)= int 3
-##  $ legend.key.height         : NULL
-##  $ legend.key.width          : NULL
-##  $ legend.text               :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : &#39;rel&#39; num 0.8
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ legend.text.align         : NULL
-##  $ legend.title              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 0
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ legend.title.align        : NULL
-##  $ legend.position           : chr &quot;right&quot;
-##  $ legend.direction          : NULL
-##  $ legend.justification      : chr &quot;center&quot;
-##  $ legend.box                : NULL
-##  $ legend.box.just           : NULL
-##  $ legend.box.margin         : &#39;margin&#39; num [1:4] 0cm 0cm 0cm 0cm
-##   ..- attr(*, &quot;unit&quot;)= int 1
-##  $ legend.box.background     : list()
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_blank&quot; &quot;element&quot;
-##  $ legend.box.spacing        : &#39;simpleUnit&#39; num 11points
-##   ..- attr(*, &quot;unit&quot;)= int 8
-##  $ panel.background          :List of 5
-##   ..$ fill         : chr &quot;white&quot;
-##   ..$ colour       : logi NA
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_rect&quot; &quot;element&quot;
-##  $ panel.border              : list()
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_blank&quot; &quot;element&quot;
-##  $ panel.spacing             : &#39;simpleUnit&#39; num 5.5points
-##   ..- attr(*, &quot;unit&quot;)= int 8
-##  $ panel.spacing.x           : NULL
-##  $ panel.spacing.y           : NULL
-##  $ panel.grid                :List of 6
-##   ..$ colour       : chr &quot;grey92&quot;
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ lineend      : NULL
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_line&quot; &quot;element&quot;
-##  $ panel.grid.major          : list()
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_blank&quot; &quot;element&quot;
-##  $ panel.grid.minor          : list()
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_blank&quot; &quot;element&quot;
-##  $ panel.grid.major.x        : NULL
-##  $ panel.grid.major.y        : NULL
-##  $ panel.grid.minor.x        : NULL
-##  $ panel.grid.minor.y        : NULL
-##  $ panel.ontop               : logi FALSE
-##  $ plot.background           :List of 5
-##   ..$ fill         : NULL
-##   ..$ colour       : chr &quot;white&quot;
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_rect&quot; &quot;element&quot;
-##  $ plot.title                :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : &#39;rel&#39; num 1.2
-##   ..$ hjust        : num 0
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 0points 0points 5.5points 0points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ plot.title.position       : chr &quot;panel&quot;
-##  $ plot.subtitle             :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 0
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 0points 0points 5.5points 0points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ plot.caption              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : &#39;rel&#39; num 0.8
-##   ..$ hjust        : num 1
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 5.5points 0points 0points 0points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ plot.caption.position     : chr &quot;panel&quot;
-##  $ plot.tag                  :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : &#39;rel&#39; num 1.2
-##   ..$ hjust        : num 0.5
-##   ..$ vjust        : num 0.5
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ plot.tag.position         : chr &quot;topleft&quot;
-##  $ plot.margin               : &#39;margin&#39; num [1:4] 5.5points 5.5points 5.5points 5.5points
-##   ..- attr(*, &quot;unit&quot;)= int 8
-##  $ strip.background          :List of 5
-##   ..$ fill         : chr &quot;white&quot;
-##   ..$ colour       : chr &quot;black&quot;
-##   ..$ size         : &#39;rel&#39; num 2
-##   ..$ linetype     : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_rect&quot; &quot;element&quot;
-##  $ strip.background.x        : NULL
-##  $ strip.background.y        : NULL
-##  $ strip.placement           : chr &quot;inside&quot;
-##  $ strip.text                :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : chr &quot;grey10&quot;
-##   ..$ size         : &#39;rel&#39; num 0.8
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : &#39;margin&#39; num [1:4] 4.4points 4.4points 4.4points 4.4points
-##   .. ..- attr(*, &quot;unit&quot;)= int 8
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ strip.text.x              : NULL
-##  $ strip.text.y              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : num -90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  $ strip.switch.pad.grid     : &#39;simpleUnit&#39; num 2.75points
-##   ..- attr(*, &quot;unit&quot;)= int 8
-##  $ strip.switch.pad.wrap     : &#39;simpleUnit&#39; num 2.75points
-##   ..- attr(*, &quot;unit&quot;)= int 8
-##  $ strip.text.y.left         :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : num 90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
-##  - attr(*, &quot;class&quot;)= chr [1:2] &quot;theme&quot; &quot;gg&quot;
-##  - attr(*, &quot;complete&quot;)= logi TRUE
-##  - attr(*, &quot;validate&quot;)= logi TRUE</code></pre>
+<p>Here’s how we plot the basic shapefile</p>
+<pre class="r"><code>ggplot() +
+  geom_sf(data = df_shp)</code></pre>
+<p><img src="maps_files/figure-html/unnamed-chunk-3-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Awesome, looks beautiful. We now have a map of the world in hexbin format. But let’s show more information. Let’s plot the world’s mean annual precipiation and let’s add some color.</p>
+<pre class="r"><code>ggplot() +
+  geom_sf(data = df_shp, aes(fill = ATR, color = ATR)) +
+  scale_fill_distiller(palette = &quot;Spectral&quot;) +
+  scale_color_distiller(palette = &quot;Spectral&quot;) +
+  labs(fill = &quot;Annual\nTemperature\nRange&quot;, color = &quot;Annual\nTemperature\nRange&quot;) +
+  theme(panel.background = element_rect(fill = &quot;black&quot;, colour = NA))</code></pre>
+<p><img src="maps_files/figure-html/unnamed-chunk-4-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
+<div id="projections" class="section level1">
+<h1>Projections</h1>
+<p>Ok, but there’s another issue to tackle. While that map is great it may not represent the area of the earth’s various continents properly. Depending on the scale of your maps you may want to pick an appropriate projection. This tutorial is not going to teach you about projections. Instead I’ll show you code on how to re-project your amazing map to be more amazing.</p>
+<p>First, we need to reproject the shapefile. We wil reproject using the mollweide projection, which is often best suited for global maps.</p>
+<pre class="r"><code>st_crs(df_shp) #this tells you what coordinate reference system you are in</code></pre>
+<pre><code>## Coordinate Reference System:
+##   User input: WGS 84 
+##   wkt:
+## GEOGCRS[&quot;WGS 84&quot;,
+##     DATUM[&quot;World Geodetic System 1984&quot;,
+##         ELLIPSOID[&quot;WGS 84&quot;,6378137,298.257223563,
+##             LENGTHUNIT[&quot;metre&quot;,1]]],
+##     PRIMEM[&quot;Greenwich&quot;,0,
+##         ANGLEUNIT[&quot;degree&quot;,0.0174532925199433]],
+##     CS[ellipsoidal,2],
+##         AXIS[&quot;latitude&quot;,north,
+##             ORDER[1],
+##             ANGLEUNIT[&quot;degree&quot;,0.0174532925199433]],
+##         AXIS[&quot;longitude&quot;,east,
+##             ORDER[2],
+##             ANGLEUNIT[&quot;degree&quot;,0.0174532925199433]],
+##     ID[&quot;EPSG&quot;,4326]]</code></pre>
+<pre class="r"><code>new_proj &lt;- &quot;+proj=moll +datum=WGS84 +no_defs +over&quot; #assign mollweide projection 
+#use the &#39;lwgeom&#39; package to reproject
+df_shp2 &lt;- st_transform(df_shp, crs = new_proj)
+st_crs(df_shp2) #notice how we changed the projected CRS?</code></pre>
+<pre><code>## Coordinate Reference System:
+##   User input: +proj=moll +datum=WGS84 +no_defs +over 
+##   wkt:
+## PROJCRS[&quot;unknown&quot;,
+##     BASEGEOGCRS[&quot;unknown&quot;,
+##         DATUM[&quot;World Geodetic System 1984&quot;,
+##             ELLIPSOID[&quot;WGS 84&quot;,6378137,298.257223563,
+##                 LENGTHUNIT[&quot;metre&quot;,1]],
+##             ID[&quot;EPSG&quot;,6326]],
+##         PRIMEM[&quot;Greenwich&quot;,0,
+##             ANGLEUNIT[&quot;degree&quot;,0.0174532925199433],
+##             ID[&quot;EPSG&quot;,8901]]],
+##     CONVERSION[&quot;unknown&quot;,
+##         METHOD[&quot;Mollweide&quot;],
+##         PARAMETER[&quot;Longitude of natural origin&quot;,0,
+##             ANGLEUNIT[&quot;degree&quot;,0.0174532925199433],
+##             ID[&quot;EPSG&quot;,8802]],
+##         PARAMETER[&quot;False easting&quot;,0,
+##             LENGTHUNIT[&quot;metre&quot;,1],
+##             ID[&quot;EPSG&quot;,8806]],
+##         PARAMETER[&quot;False northing&quot;,0,
+##             LENGTHUNIT[&quot;metre&quot;,1],
+##             ID[&quot;EPSG&quot;,8807]]],
+##     CS[Cartesian,2],
+##         AXIS[&quot;(E)&quot;,east,
+##             ORDER[1],
+##             LENGTHUNIT[&quot;metre&quot;,1,
+##                 ID[&quot;EPSG&quot;,9001]]],
+##         AXIS[&quot;(N)&quot;,north,
+##             ORDER[2],
+##             LENGTHUNIT[&quot;metre&quot;,1,
+##                 ID[&quot;EPSG&quot;,9001]]]]</code></pre>
+<p>Ok now let’s plot this:</p>
+<pre class="r"><code>ggplot() +
+  geom_sf(data = df_shp2, aes(fill = ATR, color = ATR)) +
+  scale_fill_distiller(palette = &quot;Spectral&quot;) +
+  scale_color_distiller(palette = &quot;Spectral&quot;) +
+  labs(fill = &quot;Annual\nTemperature\nRange&quot;, color = &quot;Annual\nTemperature\nRange&quot;) +
+  theme(panel.background = element_rect(fill = &quot;black&quot;, colour = NA))</code></pre>
+<p><img src="maps_files/figure-html/unnamed-chunk-6-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>We can also look at specific parts of the globe and get even more creative. Let’s say we wanted to center on Florida but at a global scale? Let’s first get the latitude and longitude of Gainesvile, Fl which is: 29.6516° N, -82.3248° W. We feed these coordinates into the new projection shown below for lat and lon:</p>
+<pre class="r"><code>df_shp_FL &lt;- st_transform(df_shp, &quot;+proj=laea +y_0=0 +lon_0=-82 +lat_0=29 +ellps=WGS84 +no_defs&quot;)</code></pre>
+<pre class="r"><code>ggplot() +
+  geom_sf(data = df_shp_FL, aes(fill = ATR, color = ATR)) +
+  scale_fill_distiller(palette = &quot;Spectral&quot;) +
+  scale_color_distiller(palette = &quot;Spectral&quot;) +
+  labs(fill = &quot;Annual\nTemperature\nRange&quot;, color = &quot;Annual\nTemperature\nRange&quot;) +
+  theme_dark()</code></pre>
+<p><img src="maps_files/figure-html/unnamed-chunk-8-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Now you have seen a variety of ways to improve your maps.</p>
 </div>
 
 
