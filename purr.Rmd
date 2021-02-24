@@ -1,0 +1,13 @@
+---
+title: "purr"
+author: "Leo_Ohyama"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,cache = TRUE)
+```
+
+# Many models
+
+Sometimes you need to run many models across a large dataset rather than a single model. Often times these models will be more simplistic and may be more inclined for data exploration. So how would one actually go about running multiple models without spending hours developing some for loop? We can use the tidyverse and more specifically the package 'purr' to do this!

@@ -28,6 +28,8 @@ navbar:
       href: NYCflights.html
     - text: Global Maps
       href: maps.html
+    - text: Modeling with Purrr
+      href: purr.html
     - text: Subsampling at the global scale
       href: subsampling.html
     - text: Tidyverse Functions

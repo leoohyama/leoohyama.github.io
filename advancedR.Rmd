@@ -46,3 +46,11 @@ mtcars %>%
   dplyr::select(car_size)
 ```
 
+# Split()
+
+If you have a dataset and want to split it up based on a column's value you can use split(). Here we split the cars dataset into three datasets based on the cylinder variable:
+```{r}
+by_cyl <- split(mtcars, mtcars$cyl)
+by_cyl
+```
+
