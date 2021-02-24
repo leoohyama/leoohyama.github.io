@@ -324,6 +324,9 @@ $(document).ready(function () {
     <li>
       <a href="subsampling.html">Subsampling at the global scale</a>
     </li>
+    <li>
+      <a href="advancedR.html">Tidyverse Functions</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -625,7 +628,7 @@ species_roster1&lt;-subset(species_roster, cell == 1) #I get the species roster 
 samples&lt;-sample(1:nrow(species_roster1), 5, replace = F) #I then sample 5 random rows (species) w/o replacement from cell 1
 species_roster1&lt;-species_roster1[samples,] # I then grab the randomly sampled rows from the species roster of cell 1
 EnvStats::geoMean(species_roster1$mean) #then I calculate the average body size of those randomly sampled species</code></pre>
-<pre><code>## [1] 1.161719</code></pre>
+<pre><code>## [1] 0.7219455</code></pre>
 <p>We just need to repeat the above for every cell and do that 100 times with this code:</p>
 <pre class="r"><code>set.seed(121212)
 fillthis&lt;-data.frame(cell = rep(unique(species_roster$cell),100), geo_mean = rep(rep(NA, length(unique(species_roster$cell))),100))

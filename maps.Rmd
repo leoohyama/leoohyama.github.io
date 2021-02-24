@@ -3,7 +3,9 @@ title: "Global maps in R"
 author: "Leo_Ohyama"
 output: html_document
 ---
-
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,cache = TRUE)
+```
 # Mapping in R
 
 Making effective maps is extremely important to convey data that is spatially distributed. For me, I started making maps in ArcMap but I quickly realized that access to the software license was limited Therefore, most of my map-making activities has delved into R or QGIS (a open souce alternative of ArcMap). There are pros and cons of map making in R. 
@@ -12,12 +14,6 @@ Pro: You are given better control and a wider variety of tools to make beautiful
 Con: R can be very slow when it comes to plotting depending on if you parallel process or not. R may also be slower when it comes to basic operations such as intersecting geospatial data etc. So if you want speed, I suggest using QGIS and then plotting in R.
 
 There are different types of geospatial data we can map in R (rasters, polygons, points, etc.), this tutorial will mainly go over polygons shapefiles, more specifically multipolygon shapefiles.
-
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 # Loading in your data
 

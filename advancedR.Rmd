@@ -1,0 +1,48 @@
+---
+title: "Useful Functions in the Tidyverse"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,cache = TRUE)
+```
+I'll keep this page updated for any interesting or cool functions that are underused in the tidyverse.
+
+# *dplyr::case_when()*
+I've used the if(){}else{} formula many times and while you can use the shorter ifelse() in a dplyr pipe it's just not as intuitive. Also if you have multiple conditions then it turns into a difficult task of stringing along a series of statements. A function called case_when() in dplyr can help with that! It works just like if() and else() but offers the flexibility to work in the pipe!
+
+Let's load the packages and a dataset on different cars:
+```{r, message=FALSE}
+library(tidyverse)
+data("mtcars")
+```
+We can see here the different number of cylinders in a car's engine from this dataset. But we also see that there is not column characterising these cars as small, medium, or large with strings or characters. 
+```{r}
+head(mtcars)
+unique(mtcars$cyl)
+```
+
+So we basically need to create a column that says whether the car is small, medium, or big based off the number of cylinders in its engine. We need to assign these words based on the number of cylinders. We could use a nested if else formula that looks like this:
+```{r}
+mtcars$new_names<-NA
+for (i in 1:nrow(mtcars)) {
+  if(mtcars$cyl[i] == 4){
+  mtcars$new_names[i]<-"small"
+  }else{if(mtcars$cyl[i] == 6){
+  mtcars$new_names[i]<-"medium"
+}else{
+  mtcars$new_names[i]<-"large"
+}} 
+}
+mtcars$new_names
+```
+But that takes time to write and there's so much room for errors!
+Here's a way to do the same thing but with case_when():
+```{r}
+mtcars %>% 
+  mutate(car_size = dplyr::case_when(
+  cyl == 4 ~ "small car",
+  cyl == 6 ~ "med car",
+  cyl == 8 ~ "large car")) %>%
+  dplyr::select(car_size)
+```
+

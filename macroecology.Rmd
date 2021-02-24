@@ -2,9 +2,8 @@
 title: "Macroecology Research"
 output: html_document
 ---
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,cache = TRUE)
 ```
 ```{r, echo=FALSE, fig.cap="", out.width = '75%', fig.align='center'}
 knitr::include_graphics("Images/dual_map.jpg")

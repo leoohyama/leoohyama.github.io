@@ -30,4 +30,6 @@ navbar:
       href: maps.html
     - text: Subsampling at the global scale
       href: subsampling.html
+    - text: Tidyverse Functions
+      href: advancedR.html
   

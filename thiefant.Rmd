@@ -3,7 +3,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,cache = TRUE)
 ```
 ```{r, echo=FALSE, fig.cap="Thief ants of the genus Solenopsis (Photo: Philipp Hönle)", out.width = '75%', fig.align='center'}
 knitr::include_graphics("Images/P1080563(1).jpg")

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Useful Functions in the Tidyverse</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/darkly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h2 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h3 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h4 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h5 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h6 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Ohyama</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="CV.html">CV</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Research
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="macroecology.html">Macroecology</a>
+    </li>
+    <li>
+      <a href="SAR.html">Island Biogeography</a>
+    </li>
+    <li>
+      <a href="thiefant.html">Community Ecology</a>
+    </li>
+    <li>
+      <a href="readings-module4.html">Non-ants</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    R stuff
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="NYCflights.html">Data Exploration</a>
+    </li>
+    <li>
+      <a href="maps.html">Global Maps</a>
+    </li>
+    <li>
+      <a href="subsampling.html">Subsampling at the global scale</a>
+    </li>
+    <li>
+      <a href="advancedR.html">Tidyverse Functions</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Useful Functions in the Tidyverse</h1>
+
+</div>
+
+
+<p>I’ll keep this page updated for any interesting or cool functions that are underused in the tidyverse.</p>
+<div id="dplyrcase_when" class="section level1">
+<h1><em>dplyr::case_when()</em></h1>
+<p>I’ve used the if(){}else{} formula many times and while you can use the shorter ifelse() in a dplyr pipe it’s just not as intuitive. Also if you have multiple conditions then it turns into a difficult task of stringing along a series of statements. A function called case_when() in dplyr can help with that! It works just like if() and else() but offers the flexibility to work in the pipe!</p>
+<p>Let’s load the packages and a dataset on different cars:</p>
+<pre class="r"><code>library(tidyverse)
+data(&quot;mtcars&quot;)</code></pre>
+<p>We can see here the different number of cylinders in a car’s engine from this dataset. But we also see that there is not column characterising these cars as small, medium, or large with strings or characters.</p>
+<pre class="r"><code>head(mtcars)</code></pre>
+<pre><code>##                    mpg cyl disp  hp drat    wt  qsec vs am gear carb
+## Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
+## Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
+## Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
+## Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
+## Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
+## Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1</code></pre>
+<pre class="r"><code>unique(mtcars$cyl)</code></pre>
+<pre><code>## [1] 6 4 8</code></pre>
+<p>So we basically need to create a column that says whether the car is small, medium, or big based off the number of cylinders in its engine. We need to assign these words based on the number of cylinders. We could use a nested if else formula that looks like this:</p>
+<pre class="r"><code>mtcars$new_names&lt;-NA
+for (i in 1:nrow(mtcars)) {
+  if(mtcars$cyl[i] == 4){
+  mtcars$new_names[i]&lt;-&quot;small&quot;
+  }else{if(mtcars$cyl[i] == 6){
+  mtcars$new_names[i]&lt;-&quot;medium&quot;
+}else{
+  mtcars$new_names[i]&lt;-&quot;large&quot;
+}} 
+}
+mtcars$new_names</code></pre>
+<pre><code>##  [1] &quot;medium&quot; &quot;medium&quot; &quot;small&quot;  &quot;medium&quot; &quot;large&quot;  &quot;medium&quot; &quot;large&quot;  &quot;small&quot; 
+##  [9] &quot;small&quot;  &quot;medium&quot; &quot;medium&quot; &quot;large&quot;  &quot;large&quot;  &quot;large&quot;  &quot;large&quot;  &quot;large&quot; 
+## [17] &quot;large&quot;  &quot;small&quot;  &quot;small&quot;  &quot;small&quot;  &quot;small&quot;  &quot;large&quot;  &quot;large&quot;  &quot;large&quot; 
+## [25] &quot;large&quot;  &quot;small&quot;  &quot;small&quot;  &quot;small&quot;  &quot;large&quot;  &quot;medium&quot; &quot;large&quot;  &quot;small&quot;</code></pre>
+<p>But that takes time to write and there’s so much room for errors! Here’s a way to do the same thing but with case_when():</p>
+<pre class="r"><code>mtcars %&gt;% 
+  mutate(car_size = dplyr::case_when(
+  cyl == 4 ~ &quot;small car&quot;,
+  cyl == 6 ~ &quot;med car&quot;,
+  cyl == 8 ~ &quot;large car&quot;)) %&gt;%
+  dplyr::select(car_size)</code></pre>
+<pre><code>##                      car_size
+## Mazda RX4             med car
+## Mazda RX4 Wag         med car
+## Datsun 710          small car
+## Hornet 4 Drive        med car
+## Hornet Sportabout   large car
+## Valiant               med car
+## Duster 360          large car
+## Merc 240D           small car
+## Merc 230            small car
+## Merc 280              med car
+## Merc 280C             med car
+## Merc 450SE          large car
+## Merc 450SL          large car
+## Merc 450SLC         large car
+## Cadillac Fleetwood  large car
+## Lincoln Continental large car
+## Chrysler Imperial   large car
+## Fiat 128            small car
+## Honda Civic         small car
+## Toyota Corolla      small car
+## Toyota Corona       small car
+## Dodge Challenger    large car
+## AMC Javelin         large car
+## Camaro Z28          large car
+## Pontiac Firebird    large car
+## Fiat X1-9           small car
+## Porsche 914-2       small car
+## Lotus Europa        small car
+## Ford Pantera L      large car
+## Ferrari Dino          med car
+## Maserati Bora       large car
+## Volvo 142E          small car</code></pre>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
