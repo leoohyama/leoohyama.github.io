@@ -54,3 +54,18 @@ by_cyl <- split(mtcars, mtcars$cyl)
 by_cyl
 ```
 
+
+# str_detect
+
+We can use str_detect from the 'stringr' package for more flexibility when filter. Let's say I want to filter out rows for all flights heading to an international aiport. I can filter out for any airport with the string "Intl" in it:
+```{r}
+library(nycflights13)
+data("flights")
+data("airports")
+
+flights %>%
+  left_join(.,airports, by = c("dest" = "faa")) %>%
+  filter(str_detect(name, "Intl")) %>%
+  dplyr::select(name)
+
+```

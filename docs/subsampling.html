@@ -696,26 +696,30 @@ levels(model_output_graph$name)&lt;-c(&quot;Effect Size Temp Range&quot;, &quot;
 ggplot(model_output_graph) + 
   geom_histogram(mapping = aes(x = value)) + 
   facet_wrap(~name, scales = &quot;free&quot;) +
-  geom_vline(data = data.frame(xint=0.05,z=&quot;p-value&quot;), aes(xintercept = xint), linetype = &quot;dotted&quot;) +
   labs(x=&quot;&quot;, y = &quot;&quot;)</code></pre>
 <pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="subsampling_files/figure-html/unnamed-chunk-12-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>We can see that from the 100 GLS models, we have a mostly significant effects of ATR on body size, we also see the correlation coefficient 7.5% which is a lot less than the actual model but that is expected as the data becomes more noisy with only 5 species being randomly sampled per bin. Overall, the subsampling gives evidence that the pattern, albeit weaker, is still present when reducing bias of possibly abundant or widespread species.</p>
-<p>Let’s map the average body size based off the subsampling for the entire world:</p>
+<p>Let’s map the average body size based off the subsampling for the entire world.</p>
+<p>Note**: Negative values mean that the subsampling estimates a higher body size compared to the original data while positive values mean that it estimates a lower body size.</p>
 <pre class="r"><code>averages&lt;-fillthis %&gt;%
   group_by(cell) %&gt;%
   summarise(avg_bod_sz = mean(geo_mean))
+df_shape2&lt;-df_shp %&gt;% left_join(.,averages, by = &quot;cell&quot;) %&gt;%
+  mutate(diff = (geo_avg - avg_bod_sz))
 
-df_shape2&lt;-df_shp %&gt;% left_join(.,averages, by = &quot;cell&quot;)
+limit &lt;- max(abs(df_shape2$diff)) * c(-1, 1)
+
 ggplot() +
   geom_sf(data = df_shp_master, alpha = 0.7) +
-  geom_sf(data = df_shape2, aes(fill = avg_bod_sz, color = avg_bod_sz)) +
-  scale_fill_viridis_c()+
-  scale_color_viridis_c()+
-  labs(fill = &quot;Simulated\nBody\nSize&quot;, color = &quot;Simulated\nBody\nSize&quot;) +
+  geom_sf(data = df_shape2, aes(fill = diff, color = diff)) +
+  scale_fill_distiller(type = &quot;div&quot;, limit = limit) +
+  scale_color_distiller(type = &quot;div&quot;, limit = limit) +
+  labs(title = &quot;Difference between original and subsample size&quot;, 
+       fill = &quot;Difference&quot;, color = &quot;Difference&quot;) +
   theme(panel.background = element_rect(fill = &quot;black&quot;, colour = NA),
         panel.grid = element_blank())</code></pre>
-<p><img src="subsampling_files/figure-html/unnamed-chunk-13-1.png" width="960" style="display: block; margin: auto;" /> We see that the subsampling visually shows the same patterns of body size.</p>
+<p><img src="subsampling_files/figure-html/unnamed-chunk-13-1.png" width="960" style="display: block; margin: auto;" /> We see from the map that that in general, most of the assemblages here show no major differences between original and subsampled data.</p>
 </div>
 
 

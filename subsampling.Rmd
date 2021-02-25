@@ -1,7 +1,6 @@
 ---
 output: html_document
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,cache = TRUE)
 ```
@@ -299,30 +298,35 @@ levels(model_output_graph$name)<-c("Effect Size Temp Range", "p-value", "Correla
 ggplot(model_output_graph) + 
   geom_histogram(mapping = aes(x = value)) + 
   facet_wrap(~name, scales = "free") +
-  geom_vline(data = data.frame(xint=0.05,z="p-value"), aes(xintercept = xint), linetype = "dotted") +
   labs(x="", y = "")
 ```
 
 We can see that from the 100 GLS models, we have a mostly significant effects of ATR on body size, we also see the correlation coefficient 7.5% which is a lot less than the actual model but that is expected as the data becomes more noisy with only 5 species being randomly sampled per bin. Overall, the subsampling gives evidence that the pattern, albeit weaker, is still present when reducing bias of possibly abundant or widespread species. 
 
-Let's map the average body size based off the subsampling for the entire world:
+Let's map the average body size based off the subsampling for the entire world. 
+
+Note**: Negative values mean that the subsampling estimates a higher body size compared to the original data while positive values mean that it estimates a lower body size.
 ```{r, echo=TRUE, fig.align = "center", fig.width = 10, warnings=FALSE}
 averages<-fillthis %>%
   group_by(cell) %>%
   summarise(avg_bod_sz = mean(geo_mean))
+df_shape2<-df_shp %>% left_join(.,averages, by = "cell") %>%
+  mutate(diff = (geo_avg - avg_bod_sz))
 
-df_shape2<-df_shp %>% left_join(.,averages, by = "cell")
+limit <- max(abs(df_shape2$diff)) * c(-1, 1)
+
 ggplot() +
   geom_sf(data = df_shp_master, alpha = 0.7) +
-  geom_sf(data = df_shape2, aes(fill = avg_bod_sz, color = avg_bod_sz)) +
-  scale_fill_viridis_c()+
-  scale_color_viridis_c()+
-  labs(fill = "Simulated\nBody\nSize", color = "Simulated\nBody\nSize") +
+  geom_sf(data = df_shape2, aes(fill = diff, color = diff)) +
+  scale_fill_distiller(type = "div", limit = limit) +
+  scale_color_distiller(type = "div", limit = limit) +
+  labs(title = "Difference between original and subsample size", 
+       fill = "Difference", color = "Difference") +
   theme(panel.background = element_rect(fill = "black", colour = NA),
         panel.grid = element_blank())
 
 ```
-We see that the subsampling visually shows the same patterns of body size.
+We see from the map that that in general, most of the assemblages here show no major differences between original and subsampled data.
 
 
 

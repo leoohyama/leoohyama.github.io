@@ -354,6 +354,11 @@ $(document).ready(function () {
 <div id="many-models" class="section level1">
 <h1>Many models</h1>
 <p>Sometimes you need to run many models across a large dataset rather than a single model. Often times these models will be more simplistic and may be more inclined for data exploration. So how would one actually go about running multiple models without spending hours developing some for loop? We can use the tidyverse and more specifically the package ‘purr’ to do this!</p>
+<p>These are the packages and datasets we need:</p>
+<pre class="r"><code>library(tidyverse)
+library(nycflights13)
+data(flights)
+data(&quot;airmiles&quot;)</code></pre>
 </div>
 
 

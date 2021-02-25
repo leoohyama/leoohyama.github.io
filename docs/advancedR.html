@@ -485,6 +485,32 @@ by_cyl</code></pre>
 ## Ford Pantera L          large
 ## Maserati Bora           large</code></pre>
 </div>
+<div id="str_detect" class="section level1">
+<h1>str_detect</h1>
+<p>We can use str_detect from the ‘stringr’ package for more flexibility when filter. Let’s say I want to filter out rows for all flights heading to an international aiport. I can filter out for any airport with the string “Intl” in it:</p>
+<pre class="r"><code>library(nycflights13)
+data(&quot;flights&quot;)
+data(&quot;airports&quot;)
+
+flights %&gt;%
+  left_join(.,airports, by = c(&quot;dest&quot; = &quot;faa&quot;)) %&gt;%
+  filter(str_detect(name, &quot;Intl&quot;)) %&gt;%
+  dplyr::select(name)</code></pre>
+<pre><code>## # A tibble: 287,875 x 1
+##    name                           
+##    &lt;chr&gt;                          
+##  1 Miami Intl                     
+##  2 Hartsfield Jackson Atlanta Intl
+##  3 Chicago Ohare Intl             
+##  4 Fort Lauderdale Hollywood Intl 
+##  5 Washington Dulles Intl         
+##  6 Orlando Intl                   
+##  7 Chicago Ohare Intl             
+##  8 Palm Beach Intl                
+##  9 Tampa Intl                     
+## 10 Los Angeles Intl               
+## # … with 287,865 more rows</code></pre>
+</div>
 
 
 
